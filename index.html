@@ -1,2 +1,53 @@
-<script src="https://marketing922.github.io/ComponentExterne/countdown.js" defer></script>
-<div class="countdown" data-target-date="2025-11-01T00:00:00"></div>
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Compte à rebours</title>
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 120px;
+            /* 同步 iframe 的高度 */
+            font-family: Arial, sans-serif;
+        }
+
+        .countdown {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+
+    <!-- 加载你的倒计时脚本 -->
+    <script src="https://marketing922.github.io/ComponentExterne/countdown.js" defer></script>
+</head>
+
+<body>
+    <div id="countdown-slot" class="countdown" data-target-date=""></div>
+
+    <script>
+        // 从 URL 里取 ?date=xxxx
+        const params = new URLSearchParams(window.location.search);
+        const dateFromUrl = params.get("date");
+
+        // 兜底用一个默认日期，防止没有传参的时候报错
+        const finalDate = dateFromUrl || "2025-12-31T23:59:59";
+
+        // 把 data-target-date 动态塞进去
+        document
+            .getElementById("countdown-slot")
+            .setAttribute("data-target-date", finalDate);
+    </script>
+</body>
+
+</html>
