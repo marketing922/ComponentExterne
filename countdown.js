@@ -2,63 +2,25 @@
 (function () {
 
     // ===== 工具：把某个时区的本地时间 -> UTC 时间戳(毫秒) =====
+    // ✅ 精确版本：正确处理巴黎冬/夏令时
     function zonedDateTimeToUTCTimestamp(year, month, day, hour, minute, second, timeZone) {
-        // 1. 先用这些数字当成 UTC 构造一个近似时间
-        const approx = new Date(Date.UTC(year, month, day, hour, minute, second, 0));
+        // 构造 ISO 格式的字符串，比如 "2025-10-29T00:00:00"
+        const isoLocal = `${year.toString().padStart(4, "0")}-${(month + 1)
+            .toString()
+            .padStart(2, "0")}-${day.toString().padStart(2, "0")}T${hour
+                .toString()
+                .padStart(2, "0")}:${minute.toString().padStart(2, "0")}:${second
+                    .toString()
+                    .padStart(2, "0")}`;
 
-        // 2. 用 Intl 把这个 approx 映射到指定时区，拿到它在该时区显示出来的年月日时分秒
-        const dtf = new Intl.DateTimeFormat("en-US", {
-            timeZone,
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: false,
-        });
+        // 把这个时间格式化成指定时区下的当地时间字符串
+        // 然后再 new Date() 让它转换为 UTC 毫秒
+        const localStr = new Date(isoLocal).toLocaleString("en-US", { timeZone });
+        const localDate = new Date(localStr);
 
-        function getParts(d) {
-            const parts = dtf.formatToParts(d);
-            const out = {};
-            for (const p of parts) {
-                if (p.type !== "literal") {
-                    out[p.type] = p.value;
-                }
-            }
-            return {
-                year: parseInt(out.year, 10),
-                month: parseInt(out.month, 10),   // 1-12
-                day: parseInt(out.day, 10),
-                hour: parseInt(out.hour, 10),
-                minute: parseInt(out.minute, 10),
-                second: parseInt(out.second, 10),
-            };
-        }
-
-        const actual = getParts(approx);
-
-        // 3. 把 actual 当成“这是一个 UTC 时间”去解读，得到它的毫秒值
-        const actualAsUTCms = Date.UTC(
-            actual.year,
-            actual.month - 1,
-            actual.day,
-            actual.hour,
-            actual.minute,
-            actual.second,
-            0
-        );
-
-        // 4. approx.getTime() 是真实 UTC 毫秒
-        //    actualAsUTCms 是“该时区里显示出来的钟面时间”误当UTC后的毫秒
-        //    差值就是这个时区当时的偏移（包括夏令时/冬令时）
-        const offsetMs = actualAsUTCms - approx.getTime();
-
-        // 5. 把我们真正想要的本地时间 (year/month/...) 减掉这个偏移，得到真正 UTC 时间戳
-        const utcTimestamp = Date.UTC(year, month, day, hour, minute, second, 0) - offsetMs;
-
-        return utcTimestamp;
+        return localDate.getTime();
     }
+
 
     function initCountdown(el) {
         const startDateStr = el.dataset.targetDate;           // "2025-12-01T10:00:00"
@@ -75,12 +37,12 @@
                     const [yStr, mStr, dStr] = datePart.split("-");
                     const [hStr, minStr, sStr] = timePart.split(":");
 
-                    const year    = parseInt(yStr, 10);
-                    const month   = parseInt(mStr, 10) - 1; // JS: 0 = Jan
-                    const day     = parseInt(dStr, 10);
-                    const hour    = parseInt(hStr || "0", 10);
-                    const minute  = parseInt(minStr || "0", 10);
-                    const second  = parseInt(sStr || "0", 10);
+                    const year = parseInt(yStr, 10);
+                    const month = parseInt(mStr, 10) - 1; // JS: 0 = Jan
+                    const day = parseInt(dStr, 10);
+                    const hour = parseInt(hStr || "0", 10);
+                    const minute = parseInt(minStr || "0", 10);
+                    const second = parseInt(sStr || "0", 10);
 
                     // 关键：把“巴黎当地 yyyy-mm-dd hh:mm:ss”换成全局唯一 UTC 时间戳
                     targetDate = zonedDateTimeToUTCTimestamp(
