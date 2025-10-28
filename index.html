@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Compte à rebours</title>
+    <script>
+        // 获取URL参数 ?date=xxxx
+        const params = new URLSearchParams(window.location.search);
+        const targetDateStr = params.get("date");
+
+        // 动态插入主脚本
+        const script = document.createElement("script");
+        script.src = "https://marketing922.github.io/ComponentExterne/countdown.js";
+        script.onload = () => {
+            // 初始化倒计时
+            const container = document.createElement("div");
+            container.className = "countdown";
+            container.dataset.targetDate = targetDateStr || "2025-12-31T23:59:59";
+            document.body.appendChild(container);
+        };
+        document.head.appendChild(script);
+    </script>
+    <style>
+        body {
+            margin: 0;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body></body>
+
+</html>
