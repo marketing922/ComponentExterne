@@ -113,6 +113,7 @@
         // 获取 URL 参数中的语言，默认 fr
         const params = new URLSearchParams(window.location.search);
         const langParam = params.get("language");
+        const debugDateParam = params.get("debug-date");
         // 如果传参是 zh-CN, en, fr 则使用，否则默认 fr
         const currentLang = (langParam && i18n[langParam]) ? langParam : "fr";
         const textData = i18n[currentLang];
@@ -120,7 +121,8 @@
         // ================= 核心逻辑：计算巴黎时间与目标 =================
         function calculateTarget() {
             // 1. 获取当前时间
-            const now = new Date();
+            //const now = new Date();
+            const now = debugDateParam ? new Date(debugDateParam) : new Date();
             
             // 2. 将当前时间转为巴黎时间对象，以便获取星期几和小时
             // 使用 Intl API 处理夏令时/冬令时
@@ -265,3 +267,4 @@
     </script>
 </body>
 </html>
+
