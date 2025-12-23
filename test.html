@@ -5,77 +5,125 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Ventes Flash Countdown</title>
     <style>
+        /* 全局重置，确保 iframe 边缘无缝隙 */
         html, body {
-            margin: 0; padding: 0;
-            font-family: 'Helvetica Neue', Arial, sans-serif; /* 使用更接近图片的字体 */
+            margin: 0; 
+            padding: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 150px; 
+            /* 这里的 padding-bottom 是为了防止内容紧贴底部，可根据 iframe 高度微调 */
+            padding-bottom: 20px; 
+            width: 100%;
         }
 
-        /* --- 标题区域样式 --- */
+        /* --- 1. 标题区域：全宽背景 --- */
         .text-title {
-            padding: 15px 0; /* 上下内边距 */
-            background-color: #f5f9f7; /* 图片中的淡绿色背景 */
-            margin-bottom: 20px;
+            width: 100%; /* 关键：撑满 iframe 宽度 */
+            padding: 15px 0;
+            background-color: #f5f9f7; /* 淡绿色背景 */
+            margin-bottom: 25px; /* 标题和倒计时的间距 */
             text-align: center;
-            width: 100%; /* 全宽 */
+            box-sizing: border-box; /* 确保 padding 不会撑破宽度 */
         }
+        
         .text-title > p {
-            font-size: 1.2em; /* 标题字号 */
-            font-weight: 700; /* 特粗字体 */
+            font-size: 18px;
+            font-weight: 800; /* 特粗字体 */
             margin: 0;
-            color: #000; /* 图片中标题是黑色的 */
+            color: #000; /* 纯黑文字 */
+            letter-spacing: 0.5px;
         }
 
-        /* --- 倒计时容器 --- */
+        /* --- 2. 倒计时容器 --- */
+        #countdown-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
         .countdown-container {
             display: flex; 
             justify-content: center; 
-            align-items: flex-start; /* 顶部对齐，确保数字在一条线上 */
+            align-items: flex-start;
+            flex-wrap: nowrap; /* 强制不换行，防止手机上布局错乱 */
         }
 
-        /* --- 单个倒计时格子 --- */
+        /* --- 单个倒计时盒子 --- */
         .countdown-box {
             text-align: center; 
-            margin: 0 10px; /* 左右间距 */
+            margin: 0 12px; /* 默认间距 */
             position: relative;
-            min-width: 60px;
+            min-width: 60px; /* 最小宽度，防止挤压 */
         }
 
         /* --- 分隔符 (连字符 -) --- */
         .countdown-box:not(:last-child):after {
             content: "-";
             position: absolute; 
-            right: -15px; /* 向右偏移 */
-            top: 25px; /* 垂直定位：根据数字高度调整，使其对齐数字中心 */
-            transform: translateY(-50%); 
-            color: #e0e0e0; /* 浅灰色分隔符 */
+            right: -16px; /* 放在两个盒子中间 */
+            top: 50%;     /* 初步定位 */
+            transform: translateY(-90%); /* 向上微调，对齐数字中心 */
+            color: #e0e0e0; /* 浅灰色 */
             font-size: 30px; 
             font-weight: 300;
         }
 
         /* --- 数字样式 --- */
         .countdown-value {
-            font-size: 48px; /* 大号字体 */
+            font-size: 48px; /* 默认大号字体 */
             font-weight: bold;
-            color: #33a853; /* 绿色 */
-            line-height: 1; /* 紧凑行高 */
+            color: #33a853; /* 核心绿色 */
+            line-height: 1; 
             display: block;
-            margin-bottom: 5px; /* 数字和下方文字的间距 */
+            margin-bottom: 8px;
         }
 
         /* --- 标签样式 (Jours/Heures...) --- */
         .countdown-label {
-            color: #33a853; /* 绿色 */
+            color: #33a853;
             font-size: 14px; 
             font-weight: normal;
         }
 
         .countdown-hidden { visibility: hidden; }
+
+        /* =========================================
+           自适应逻辑 (Responsive)
+           当 iframe 宽度小于 600px (手机/窄屏) 时触发
+           ========================================= */
+        @media (max-width: 600px) {
+            .text-title {
+                padding: 12px 0;
+                margin-bottom: 15px;
+            }
+            .text-title > p {
+                font-size: 16px; /* 标题稍微调小 */
+            }
+
+            .countdown-box {
+                margin: 0 5px; /* 缩小左右间距 */
+                min-width: 45px;
+            }
+
+            .countdown-value {
+                font-size: 32px; /* 数字变小，防止换行 */
+                margin-bottom: 4px;
+            }
+
+            .countdown-label {
+                font-size: 11px; /* 标签变小 */
+            }
+
+            /* 调整分隔符位置和大小以适应新字体 */
+            .countdown-box:not(:last-child):after {
+                font-size: 20px;
+                right: -9px;
+                transform: translateY(-110%);
+            }
+        }
     </style>
 </head>
 
@@ -129,13 +177,14 @@
 
         const params = new URLSearchParams(window.location.search);
         const langParam = params.get("language");
+        // 获取测试用的时间参数，例如 ?debug-date=2025-10-14T11:00:00
         const debugDateParam = params.get("debug-date");
         const currentLang = (langParam && i18n[langParam]) ? langParam : "fr";
         const textData = i18n[currentLang];
 
         // ================= 核心逻辑 =================
         function calculateTarget() {
-            // 支持 debug-date 测试
+            // 如果有 debug 参数，使用 debug 时间，否则使用当前时间
             const now = debugDateParam ? new Date(debugDateParam) : new Date();
             
             const parisTimeStr = now.toLocaleString("en-US", {timeZone: "Europe/Paris"});
@@ -165,8 +214,7 @@
             } else {
                 let daysUntilNextTue = (2 - day + 7) % 7;
                 if (daysUntilNextTue === 0 && hour >= 10) {
-                   // 如果是周二但已过10点，或者是周三10点后
-                   // 逻辑在上方 isFlashSaleActive 已覆盖大部分
+                   // 逻辑在上方 isFlashSaleActive 已覆盖
                 }
                 
                 if (day === 2 && hour < 10) {
