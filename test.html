@@ -7,56 +7,74 @@
     <style>
         html, body {
             margin: 0; padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Helvetica Neue', Arial, sans-serif; /* 使用更接近图片的字体 */
             background: #fff;
             display: flex;
-            flex-direction: column; /* 垂直排列标题和倒计时 */
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            /* 移除固定高度，让内容自适应 */
             min-height: 150px; 
         }
 
-        /* 标题样式 */
+        /* --- 标题区域样式 --- */
         .text-title {
-            padding: 0.4em 1em;
-            background-color: #f5f9f7;
-            margin-bottom: 10px;
+            padding: 15px 0; /* 上下内边距 */
+            background-color: #f5f9f7; /* 图片中的淡绿色背景 */
+            margin-bottom: 20px;
             text-align: center;
-            border-radius: 4px;
-            width: 90%;
-            max-width: 600px;
+            width: 100%; /* 全宽 */
         }
         .text-title > p {
-            font-size: 1.2em;
+            font-size: 18px; /* 标题字号 */
+            font-weight: 800; /* 特粗字体 */
             margin: 0;
-            color: #33a853; /* 对应 text-green */
+            color: #000; /* 图片中标题是黑色的 */
         }
 
-        /* 倒计时容器样式 */
+        /* --- 倒计时容器 --- */
         .countdown-container {
-            display: flex; justify-content: center; flex-wrap: nowrap;
-            width: 100%; padding: 0 10px; text-align: center;
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; /* 顶部对齐，确保数字在一条线上 */
         }
+
+        /* --- 单个倒计时格子 --- */
         .countdown-box {
-            margin: 5px; text-align: center; flex: 1;
-            min-width: 60px; max-width: 100px; position: relative;
+            text-align: center; 
+            margin: 0 10px; /* 左右间距 */
+            position: relative;
+            min-width: 60px;
         }
+
+        /* --- 分隔符 (连字符 -) --- */
         .countdown-box:not(:last-child):after {
-            content: ":"; /* 用冒号比横线更节省空间，也可改回 "-" */
-            position: absolute; right: -8px; top: 45%;
-            transform: translateY(-50%); color: #DDD;
-            font-size: 24px; font-weight: bold;
+            content: "-";
+            position: absolute; 
+            right: -15px; /* 向右偏移 */
+            top: 25px; /* 垂直定位：根据数字高度调整，使其对齐数字中心 */
+            transform: translateY(-50%); 
+            color: #e0e0e0; /* 浅灰色分隔符 */
+            font-size: 30px; 
+            font-weight: 300;
         }
+
+        /* --- 数字样式 --- */
         .countdown-value {
-            font-size: 28px; font-weight: bold;
-            color: #33a853; background-color: white;
+            font-size: 48px; /* 大号字体 */
+            font-weight: bold;
+            color: #33a853; /* 绿色 */
+            line-height: 1; /* 紧凑行高 */
             display: block;
+            margin-bottom: 5px; /* 数字和下方文字的间距 */
         }
+
+        /* --- 标签样式 (Jours/Heures...) --- */
         .countdown-label {
-            margin-top: 5px; color: #33a853;
-            font-size: 12px; text-transform: uppercase;
+            color: #33a853; /* 绿色 */
+            font-size: 14px; 
+            font-weight: normal;
         }
+
         .countdown-hidden { visibility: hidden; }
     </style>
 </head>
@@ -64,7 +82,7 @@
 <body>
 
     <div id="dynamic-title" class="text-title" style="display:none;">
-        <p><strong id="title-text">...</strong></p>
+        <p><span id="title-text">...</span></p>
     </div>
 
     <div id="countdown-wrapper" class="countdown-hidden">
@@ -91,11 +109,10 @@
     <script>
     (function () {
         // ================= 配置区域 =================
-        // 定义多语言文案
         const i18n = {
             "fr": {
-                activeTitle: "Fin des ventes flash",    // 活动进行中显示的标题
-                upcomingTitle: "Prochaines ventes flash", // 下次活动显示的标题
+                activeTitle: "Fin de ventes flash",    
+                upcomingTitle: "Prochaines ventes flash", 
                 labels: ["Jours", "Heures", "Minutes", "Secondes"]
             },
             "en": {
@@ -110,76 +127,51 @@
             }
         };
 
-        // 获取 URL 参数中的语言，默认 fr
         const params = new URLSearchParams(window.location.search);
         const langParam = params.get("language");
         const debugDateParam = params.get("debug-date");
-        // 如果传参是 zh-CN, en, fr 则使用，否则默认 fr
         const currentLang = (langParam && i18n[langParam]) ? langParam : "fr";
         const textData = i18n[currentLang];
 
-        // ================= 核心逻辑：计算巴黎时间与目标 =================
+        // ================= 核心逻辑 =================
         function calculateTarget() {
-            // 1. 获取当前时间
-            //const now = new Date();
+            // 支持 debug-date 测试
             const now = debugDateParam ? new Date(debugDateParam) : new Date();
             
-            // 2. 将当前时间转为巴黎时间对象，以便获取星期几和小时
-            // 使用 Intl API 处理夏令时/冬令时
             const parisTimeStr = now.toLocaleString("en-US", {timeZone: "Europe/Paris"});
             const parisDate = new Date(parisTimeStr);
 
-            const day = parisDate.getDay();   // 0=Sun, 1=Mon, 2=Tue, 3=Wed ...
+            const day = parisDate.getDay();   
             const hour = parisDate.getHours();
             
-            // 逻辑判断：
-            // 窗口期：周二 10:00 (含) ~ 周三 10:00 (不含)
             let isFlashSaleActive = false;
 
+            // 周二 10:00 (含) ~ 周三 10:00 (不含)
             if (day === 2 && hour >= 10) {
-                // 周二 10点以后
                 isFlashSaleActive = true;
             } else if (day === 3 && hour < 10) {
-                // 周三 10点以前
                 isFlashSaleActive = true;
             }
 
-            // 3. 确定目标时间字符串 (ISO格式: YYYY-MM-DDTHH:mm:ss)
-            let targetDateObj = new Date(parisDate); // 克隆一份巴黎时间
+            let targetDateObj = new Date(parisDate); 
             targetDateObj.setMinutes(0);
             targetDateObj.setSeconds(0);
             targetDateObj.setMilliseconds(0);
 
             if (isFlashSaleActive) {
-                // 如果正在活动中，目标是 "本周三 10:00"
-                // 此时 parisDate 可能是周二(day2)或周三(day3)
-                // 如果是周二，加1天；如果是周三，加0天（但在前面逻辑里周三必然<10点，所以目标是今天10点）
                 const daysToAdd = (3 - day + 7) % 7; 
                 targetDateObj.setDate(parisDate.getDate() + daysToAdd);
                 targetDateObj.setHours(10);
             } else {
-                // 如果是等待期，目标是 "下个周二 10:00"
-                // 计算距离下个周二还有几天
-                // 目标 day = 2
                 let daysUntilNextTue = (2 - day + 7) % 7;
                 if (daysUntilNextTue === 0 && hour >= 10) {
-                    // 如果今天是周二且过了10点（实际上这种情况上面 isFlashSaleActive 会捕获，
-                    // 但为了逻辑严谨：如果今天是周三10点后，daysUntilNextTue是6）
-                    // 修正逻辑：
-                    // 如果今天是周二且<10点 -> 目标是今天 (days=0)
-                    // 如果是周三10点后 -> 目标是下周二 (days=6)
+                   // 如果是周二但已过10点，或者是周三10点后
+                   // 逻辑在上方 isFlashSaleActive 已覆盖大部分
                 }
-                
-                // 简单算法：让日期不断+1直到是周二，且如果就是当天必须是未来
-                // 更好的算法：
-                // 目前是非活动期。
-                // 如果是周二 <10点 -> 目标今天10点
-                // 如果是周三 >=10点, 周四, 周五... -> 目标下周二
                 
                 if (day === 2 && hour < 10) {
                      daysUntilNextTue = 0;
                 } else {
-                     // 否则找下一个周二
                      if (daysUntilNextTue === 0) daysUntilNextTue = 7; 
                 }
                 
@@ -187,17 +179,11 @@
                 targetDateObj.setHours(10);
             }
 
-            // 构造 ISO 字符串用于传递给原来的逻辑，或者直接计算 diff
-            // 这里我们需要算出 UTC 时间戳。
-            // 因为 targetDateObj 是我们在 "巴黎时间思维" 下构建的 Date 对象
-            // 我们需要反向把它当做巴黎时间解析出绝对时间戳。
-            
             const year = targetDateObj.getFullYear();
             const month = targetDateObj.getMonth() + 1;
             const d = targetDateObj.getDate();
             const h = targetDateObj.getHours();
             
-            // 使用你提供的辅助函数逻辑计算 UTC 时间戳
             const targetTimestamp = zonedDateTimeToUTCTimestamp(year, month - 1, d, h, 0, 0, "Europe/Paris");
 
             return {
@@ -206,7 +192,7 @@
             };
         }
 
-        // ================= 工具函数 (来自你的源代码) =================
+        // ================= 工具函数 =================
         function zonedDateTimeToUTCTimestamp(year, month, day, hour, minute, second, timeZone) {
             const isoLocal = `${year.toString().padStart(4, "0")}-${(month + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}T${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}`;
             const localStr = new Date(isoLocal).toLocaleString("en-US", { timeZone });
@@ -226,20 +212,19 @@
             } else {
                 titleEl.textContent = textData.upcomingTitle;
             }
-            titleWrapper.style.display = "block"; // 准备好后显示
+            titleWrapper.style.display = "block"; 
 
-            // 2. 设置倒计时标签语言
+            // 2. 设置标签
             document.getElementById("label-days").textContent = textData.labels[0];
             document.getElementById("label-hours").textContent = textData.labels[1];
             document.getElementById("label-minutes").textContent = textData.labels[2];
             document.getElementById("label-seconds").textContent = textData.labels[3];
 
-            // 3. 执行倒计时计算
+            // 3. 计算倒计时
             const now = Date.now();
             const distance = state.targetTimestamp - now;
 
             if (distance < 0) {
-                // 稍微过了一点点时间（比如刷新瞬间），显示00并等待下一秒自动修正逻辑
                 document.getElementById("days").textContent = "00";
                 document.getElementById("hours").textContent = "00";
                 document.getElementById("minutes").textContent = "00";
@@ -259,7 +244,6 @@
             }
         }
 
-        // 启动
         updateUI();
         setInterval(updateUI, 1000);
 
@@ -267,4 +251,3 @@
     </script>
 </body>
 </html>
-
