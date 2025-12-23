@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Ventes Flash Countdown</title>
     <style>
         /* 全局重置，确保 iframe 边缘无缝隙 */
-        html, body {
-            margin: 0; 
+        html,
+        body {
+            margin: 0;
             padding: 0;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background: #fff;
@@ -15,25 +17,31 @@
             flex-direction: column;
             align-items: center;
             /* 这里的 padding-bottom 是为了防止内容紧贴底部，可根据 iframe 高度微调 */
-            padding-bottom: 20px; 
+            padding-bottom: 20px;
             width: 100%;
         }
 
         /* --- 1. 标题区域：全宽背景 --- */
         .text-title {
-            width: 100%; /* 关键：撑满 iframe 宽度 */
+            width: 100%;
+            /* 关键：撑满 iframe 宽度 */
             padding: 15px 0;
-            background-color: #f5f9f7; /* 淡绿色背景 */
-            margin-bottom: 25px; /* 标题和倒计时的间距 */
+            background-color: #f5f9f7;
+            /* 淡绿色背景 */
+            margin-bottom: 25px;
+            /* 标题和倒计时的间距 */
             text-align: center;
-            box-sizing: border-box; /* 确保 padding 不会撑破宽度 */
+            box-sizing: border-box;
+            /* 确保 padding 不会撑破宽度 */
         }
-        
-        .text-title > p {
+
+        .text-title>p {
             font-size: 18px;
-            font-weight: 800; /* 特粗字体 */
+            font-weight: 800;
+            /* 特粗字体 */
             margin: 0;
-            color: #000; /* 纯黑文字 */
+            color: #000;
+            /* 纯黑文字 */
             letter-spacing: 0.5px;
         }
 
@@ -45,38 +53,47 @@
         }
 
         .countdown-container {
-            display: flex; 
-            justify-content: center; 
+            display: flex;
+            justify-content: center;
             align-items: flex-start;
-            flex-wrap: nowrap; /* 强制不换行，防止手机上布局错乱 */
+            flex-wrap: nowrap;
+            /* 强制不换行，防止手机上布局错乱 */
         }
 
         /* --- 单个倒计时盒子 --- */
         .countdown-box {
-            text-align: center; 
-            margin: 0 12px; /* 默认间距 */
+            text-align: center;
+            margin: 0 12px;
+            /* 默认间距 */
             position: relative;
-            min-width: 60px; /* 最小宽度，防止挤压 */
+            min-width: 60px;
+            /* 最小宽度，防止挤压 */
         }
 
         /* --- 分隔符 (连字符 -) --- */
         .countdown-box:not(:last-child):after {
             content: "-";
-            position: absolute; 
-            right: -16px; /* 放在两个盒子中间 */
-            top: 50%;     /* 初步定位 */
-            transform: translateY(-90%); /* 向上微调，对齐数字中心 */
-            color: #e0e0e0; /* 浅灰色 */
-            font-size: 30px; 
+            position: absolute;
+            right: -16px;
+            /* 放在两个盒子中间 */
+            top: 50%;
+            /* 初步定位 */
+            transform: translateY(-90%);
+            /* 向上微调，对齐数字中心 */
+            color: #e0e0e0;
+            /* 浅灰色 */
+            font-size: 30px;
             font-weight: 300;
         }
 
         /* --- 数字样式 --- */
         .countdown-value {
-            font-size: 48px; /* 默认大号字体 */
+            font-size: 48px;
+            /* 默认大号字体 */
             font-weight: bold;
-            color: #33a853; /* 核心绿色 */
-            line-height: 1; 
+            color: #33a853;
+            /* 核心绿色 */
+            line-height: 1;
             display: block;
             margin-bottom: 8px;
         }
@@ -84,11 +101,13 @@
         /* --- 标签样式 (Jours/Heures...) --- */
         .countdown-label {
             color: #33a853;
-            font-size: 14px; 
+            font-size: 14px;
             font-weight: normal;
         }
 
-        .countdown-hidden { visibility: hidden; }
+        .countdown-hidden {
+            visibility: hidden;
+        }
 
         /* =========================================
            自适应逻辑 (Responsive)
@@ -99,22 +118,27 @@
                 padding: 12px 0;
                 margin-bottom: 15px;
             }
-            .text-title > p {
-                font-size: 16px; /* 标题稍微调小 */
+
+            .text-title>p {
+                font-size: 16px;
+                /* 标题稍微调小 */
             }
 
             .countdown-box {
-                margin: 0 5px; /* 缩小左右间距 */
+                margin: 0 5px;
+                /* 缩小左右间距 */
                 min-width: 45px;
             }
 
             .countdown-value {
-                font-size: 32px; /* 数字变小，防止换行 */
+                font-size: 32px;
+                /* 数字变小，防止换行 */
                 margin-bottom: 4px;
             }
 
             .countdown-label {
-                font-size: 11px; /* 标签变小 */
+                font-size: 11px;
+                /* 标签变小 */
             }
 
             /* 调整分隔符位置和大小以适应新字体 */
@@ -155,147 +179,157 @@
     </div>
 
     <script>
-    (function () {
-        // ================= 配置区域 =================
-        const i18n = {
-            "fr": {
-                activeTitle: "Fin de ventes flash",    
-                upcomingTitle: "Prochaines ventes flash", 
-                labels: ["Jours", "Heures", "Minutes", "Secondes"]
-            },
-            "en": {
-                activeTitle: "Flash sales end in",
-                upcomingTitle: "Next flash sales in",
-                labels: ["Days", "Hours", "Minutes", "Seconds"]
-            },
-            "zh-CN": {
-                activeTitle: "限时特卖结束倒计时",
-                upcomingTitle: "距离下次特卖还有",
-                labels: ["天", "时", "分", "秒"]
-            }
-        };
-
-        const params = new URLSearchParams(window.location.search);
-        const langParam = params.get("language");
-        // 获取测试用的时间参数，例如 ?debug-date=2025-10-14T11:00:00
-        const debugDateParam = params.get("debug-date");
-        const currentLang = (langParam && i18n[langParam]) ? langParam : "fr";
-        const textData = i18n[currentLang];
-
-        // ================= 核心逻辑 =================
-        function calculateTarget() {
-            // 如果有 debug 参数，使用 debug 时间，否则使用当前时间
-            const now = debugDateParam ? new Date(debugDateParam) : new Date();
-            
-            const parisTimeStr = now.toLocaleString("en-US", {timeZone: "Europe/Paris"});
-            const parisDate = new Date(parisTimeStr);
-
-            const day = parisDate.getDay();   
-            const hour = parisDate.getHours();
-            
-            let isFlashSaleActive = false;
-
-            // 周二 10:00 (含) ~ 周三 10:00 (不含)
-            if (day === 2 && hour >= 10) {
-                isFlashSaleActive = true;
-            } else if (day === 3 && hour < 10) {
-                isFlashSaleActive = true;
-            }
-
-            let targetDateObj = new Date(parisDate); 
-            targetDateObj.setMinutes(0);
-            targetDateObj.setSeconds(0);
-            targetDateObj.setMilliseconds(0);
-
-            if (isFlashSaleActive) {
-                const daysToAdd = (3 - day + 7) % 7; 
-                targetDateObj.setDate(parisDate.getDate() + daysToAdd);
-                targetDateObj.setHours(10);
-            } else {
-                let daysUntilNextTue = (2 - day + 7) % 7;
-                if (daysUntilNextTue === 0 && hour >= 10) {
-                   // 逻辑在上方 isFlashSaleActive 已覆盖
+        (function () {
+            // ================= 配置区域 =================
+            const i18n = {
+                "fr": {
+                    activeTitle: "Fin de ventes flash",
+                    upcomingTitle: "Prochaines ventes flash",
+                    labels: ["Jours", "Heures", "Minutes", "Secondes"]
+                },
+                "en": {
+                    activeTitle: "Flash sales end in",
+                    upcomingTitle: "Next flash sales in",
+                    labels: ["Days", "Hours", "Minutes", "Seconds"]
+                },
+                "zh-CN": {
+                    activeTitle: "限时特卖结束倒计时",
+                    upcomingTitle: "距离下次特卖还有",
+                    labels: ["天", "时", "分", "秒"]
                 }
-                
-                if (day === 2 && hour < 10) {
-                     daysUntilNextTue = 0;
-                } else {
-                     if (daysUntilNextTue === 0) daysUntilNextTue = 7; 
-                }
-                
-                targetDateObj.setDate(parisDate.getDate() + daysUntilNextTue);
-                targetDateObj.setHours(10);
-            }
-
-            const year = targetDateObj.getFullYear();
-            const month = targetDateObj.getMonth() + 1;
-            const d = targetDateObj.getDate();
-            const h = targetDateObj.getHours();
-            
-            const targetTimestamp = zonedDateTimeToUTCTimestamp(year, month - 1, d, h, 0, 0, "Europe/Paris");
-
-            return {
-                isFlashSaleActive,
-                targetTimestamp
             };
-        }
 
-        // ================= 工具函数 =================
-        function zonedDateTimeToUTCTimestamp(year, month, day, hour, minute, second, timeZone) {
-            const isoLocal = `${year.toString().padStart(4, "0")}-${(month + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}T${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}`;
-            const localStr = new Date(isoLocal).toLocaleString("en-US", { timeZone });
-            return new Date(localStr).getTime();
-        }
+            const params = new URLSearchParams(window.location.search);
+            const langParam = params.get("language");
+            // 获取测试用的时间参数，例如 ?debug-date=2025-10-14T11:00:00
+            const debugDateParam = params.get("debug-date");
+            const currentLang = (langParam && i18n[langParam]) ? langParam : "fr";
+            const textData = i18n[currentLang];
 
-        // ================= 界面更新 =================
-        function updateUI() {
-            const state = calculateTarget();
-            
-            // 1. 设置标题
-            const titleEl = document.getElementById("title-text");
-            const titleWrapper = document.getElementById("dynamic-title");
-            
-            if (state.isFlashSaleActive) {
-                titleEl.textContent = textData.activeTitle;
-            } else {
-                titleEl.textContent = textData.upcomingTitle;
+            // ================= 核心逻辑 =================
+            function calculateTarget() {
+                // 如果有 debug 参数，使用 debug 时间，否则使用当前时间
+                const now = debugDateParam ? new Date(debugDateParam) : new Date();
+
+                const parisTimeStr = now.toLocaleString("en-US", { timeZone: "Europe/Paris" });
+                const parisDate = new Date(parisTimeStr);
+
+                const day = parisDate.getDay();
+                const hour = parisDate.getHours();
+
+                let isFlashSaleActive = false;
+
+                // 周二 10:00 (含) ~ 周三 10:00 (不含)
+                if (day === 2 && hour >= 10) {
+                    isFlashSaleActive = true;
+                } else if (day === 3 && hour < 10) {
+                    isFlashSaleActive = true;
+                }
+
+                let targetDateObj = new Date(parisDate);
+                targetDateObj.setMinutes(0);
+                targetDateObj.setSeconds(0);
+                targetDateObj.setMilliseconds(0);
+
+                if (isFlashSaleActive) {
+                    const daysToAdd = (3 - day + 7) % 7;
+                    targetDateObj.setDate(parisDate.getDate() + daysToAdd);
+                    targetDateObj.setHours(10);
+                } else {
+                    let daysUntilNextTue = (2 - day + 7) % 7;
+                    if (daysUntilNextTue === 0 && hour >= 10) {
+                        // 逻辑在上方 isFlashSaleActive 已覆盖
+                    }
+
+                    if (day === 2 && hour < 10) {
+                        daysUntilNextTue = 0;
+                    } else {
+                        if (daysUntilNextTue === 0) daysUntilNextTue = 7;
+                    }
+
+                    targetDateObj.setDate(parisDate.getDate() + daysUntilNextTue);
+                    targetDateObj.setHours(10);
+                }
+
+                const year = targetDateObj.getFullYear();
+                const month = targetDateObj.getMonth() + 1;
+                const d = targetDateObj.getDate();
+                const h = targetDateObj.getHours();
+
+                const targetTimestamp = zonedDateTimeToUTCTimestamp(year, month - 1, d, h, 0, 0, "Europe/Paris");
+
+                return {
+                    isFlashSaleActive,
+                    targetTimestamp
+                };
             }
-            titleWrapper.style.display = "block"; 
 
-            // 2. 设置标签
-            document.getElementById("label-days").textContent = textData.labels[0];
-            document.getElementById("label-hours").textContent = textData.labels[1];
-            document.getElementById("label-minutes").textContent = textData.labels[2];
-            document.getElementById("label-seconds").textContent = textData.labels[3];
-
-            // 3. 计算倒计时
-            const now = Date.now();
-            const distance = state.targetTimestamp - now;
-
-            if (distance < 0) {
-                document.getElementById("days").textContent = "00";
-                document.getElementById("hours").textContent = "00";
-                document.getElementById("minutes").textContent = "00";
-                document.getElementById("seconds").textContent = "00";
-            } else {
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                document.getElementById("days").textContent = String(days).padStart(2, "0");
-                document.getElementById("hours").textContent = String(hours).padStart(2, "0");
-                document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
-                document.getElementById("seconds").textContent = String(seconds).padStart(2, "0");
-                
-                document.getElementById("countdown-wrapper").classList.remove("countdown-hidden");
+            // ================= 工具函数 =================
+            function zonedDateTimeToUTCTimestamp(year, month, day, hour, minute, second, timeZone) {
+                const isoLocal = `${year.toString().padStart(4, "0")}-${(month + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}T${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}`;
+                const localStr = new Date(isoLocal).toLocaleString("en-US", { timeZone });
+                return new Date(localStr).getTime();
             }
-        }
 
-        updateUI();
-        setInterval(updateUI, 1000);
+            // ================= 界面更新 =================
+            // ================= 界面更新 =================
+            function updateUI() {
+                const state = calculateTarget();
 
-    })();
+                // 1. 设置标题
+                const titleEl = document.getElementById("title-text");
+                const titleWrapper = document.getElementById("dynamic-title");
+
+                if (state.isFlashSaleActive) {
+                    titleEl.textContent = textData.activeTitle;
+                } else {
+                    titleEl.textContent = textData.upcomingTitle;
+                }
+                titleWrapper.style.display = "block";
+
+                // 2. 设置标签
+                document.getElementById("label-days").textContent = textData.labels[0];
+                document.getElementById("label-hours").textContent = textData.labels[1];
+                document.getElementById("label-minutes").textContent = textData.labels[2];
+                document.getElementById("label-seconds").textContent = textData.labels[3];
+
+                // 3. 计算倒计时 (修正部分在这里！)
+                let now;
+                if (debugDateParam) {
+                    // 如果是调试模式，强制认为 "现在" 就是 URL 里的时间
+                    now = new Date(debugDateParam).getTime();
+                } else {
+                    // 否则使用真实的流逝时间
+                    now = Date.now();
+                }
+
+                const distance = state.targetTimestamp - now;
+
+                if (distance < 0) {
+                    document.getElementById("days").textContent = "00";
+                    document.getElementById("hours").textContent = "00";
+                    document.getElementById("minutes").textContent = "00";
+                    document.getElementById("seconds").textContent = "00";
+                } else {
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    document.getElementById("days").textContent = String(days).padStart(2, "0");
+                    document.getElementById("hours").textContent = String(hours).padStart(2, "0");
+                    document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
+                    document.getElementById("seconds").textContent = String(seconds).padStart(2, "0");
+
+                    document.getElementById("countdown-wrapper").classList.remove("countdown-hidden");
+                }
+            }
+
+            updateUI();
+            setInterval(updateUI, 1000);
+
+        })();
     </script>
 </body>
+
 </html>
