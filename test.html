@@ -5,8 +5,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <title>Ventes Flash Countdown</title>
     <style>
         /* 全局重置，确保 iframe 边缘无缝隙 */
@@ -77,16 +78,12 @@
         .countdown-box:not(:last-child):after {
             content: "-";
             position: absolute;
-            right: -16px;
-            /* 放在两个盒子中间 */
-            top: 50%;
-            /* 初步定位 */
-            transform: translateY(-90%);
-            /* 向上微调，对齐数字中心 */
-            color: #e0e0e0;
-            /* 浅灰色 */
-            font-size: 30px;
-            font-weight: 300;
+            right: -23px;
+            top: 38%;
+            transform: translateY(-60%);
+            color: #DDD;
+            font-size: calc(20px + 1vw);
+            font-weight: normal;
         }
 
         /* --- 数字样式 --- */
@@ -146,9 +143,14 @@
 
             /* 调整分隔符位置和大小以适应新字体 */
             .countdown-box:not(:last-child):after {
-                font-size: 20px;
-                right: -9px;
-                transform: translateY(-110%);
+                content: "-";
+                position: absolute;
+                right: -12px;
+                top: 38%;
+                transform: translateY(-60%);
+                color: #DDD;
+                font-size: calc(20px + 1vw);
+                font-weight: normal;
             }
         }
     </style>
