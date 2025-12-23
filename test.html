@@ -1,6 +1,902 @@
-<iframe
-  src="https://marketing922.github.io/ComponentExterne/index.html?date=2025-11-01T00:00:00"
-  frameborder="0"
-  scrolling="no"
-  style="width:100%;"
-></iframe>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Beauté selon la MTC | Laboratoire Calebasse</title>
+    <style>
+        /* ===================================
+           VARIABLES & BASE
+           =================================== */
+        :root {
+            --primary-green: #4A7C59;       /* Vert texte/boutons standard */
+            --coffret-bg: #3E6B50;          /* Vert foncé du fond coffret */
+            --coffret-card-bg: #527A63;     /* Vert des cartes dans le coffret */
+            --accent-gold: #D4AF37;         /* Doré */
+            --accent-pearl: #F5F5F0;        /* Fond beige très clair */
+            
+            --white: #FFFFFF;
+            --off-white: #FAFAFA;
+            --light-gray: #F5F5F5;
+            --gray-border: #E0E0E0;
+            --text-main: #333333;
+            --text-light: #666666;
+            
+            --spacing-sm: 1rem;
+            --spacing-md: 2rem;
+            --spacing-lg: 4rem;
+            --spacing-xl: 6rem;
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-main);
+            background: var(--white);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        img { display: block; max-width: 100%; height: auto; }
+        
+        /* Placeholder style pour les images manquantes */
+        .img-placeholder {
+            background-color: #f0f0f0;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            border-radius: var(--radius-sm);
+            width: 100%;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-weight: normal;
+            line-height: 1.3;
+            color: var(--text-main);
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .text-center { text-align: center; }
+        .section-spacer { padding: var(--spacing-lg) 0; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-4 { margin-top: 2rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 2rem; }
+
+        /* Badges de chapitre */
+        .chapter-badge {
+            display: inline-block;
+            background: var(--accent-pearl);
+            color: var(--primary-green);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+        }
+
+        .section-title { font-size: 2.5rem; margin-bottom: 1rem; }
+        .section-subtitle { font-size: 1.1rem; color: var(--text-light); max-width: 800px; margin: 0 auto; }
+
+        /* Lien flèche */
+        .link-arrow {
+            color: var(--primary-green);
+            font-weight: bold;
+            font-size: 0.95rem;
+            border-bottom: 1px solid transparent;
+        }
+        .link-arrow:hover { border-bottom-color: var(--primary-green); }
+
+        /* ===================================
+           HERO & INTRO
+           =================================== */
+        .intro-quote-box {
+            border-left: 4px solid var(--primary-green);
+            padding: 1.5rem;
+            background: var(--white);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: left;
+            max-width: 800px;
+            margin: 3rem auto;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* ===================================
+           TRANSITIONS
+           =================================== */
+
+        .transition {
+            background: linear-gradient(135deg, var(--off-white), var(--light-gray));
+            padding: var(--spacing-lg) 0;
+            text-align: center;
+            border-top: 1px solid var(--gray);
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .transition-text {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.25rem;
+            font-style: italic;
+            color: var(--primary-green);
+            line-height: 1.8;
+        }
+
+        /* ===================================
+           CHAPITRE 1 : DYNASTIES
+           =================================== */
+        .dynasties-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .dynasty-card {
+            border: 1px solid var(--gray-border);
+            border-radius: var(--radius-md);
+            padding: 2.5rem 2rem;
+            background: var(--white);
+            text-align: left;
+            transition: transform 0.3s;
+        }
+        .dynasty-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+
+        .dynasty-card.highlight {
+            border-color: var(--accent-gold);
+            background: linear-gradient(to bottom right, #FFFCF2, #fff);
+        }
+
+        .dynasty-dates {
+            font-size: 0.7rem; font-weight: bold; color: var(--primary-green);
+            text-transform: uppercase; letter-spacing: 1px; text-align: center; display: block;
+        }
+        .dynasty-name { font-size: 2rem; margin: 0.5rem 0 1rem 0; text-align: center; }
+        
+        .dynasty-pill {
+            display: table; margin: 0 auto 1.5rem auto; background: var(--accent-gold);
+            color: white; font-size: 0.7rem; font-weight: bold; padding: 4px 12px; border-radius: 15px;
+        }
+        
+        .dynasty-quote-box {
+            background: var(--off-white); padding: 1rem; text-align: center;
+            font-style: italic; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.95rem;
+        }
+
+        .dynasty-subhead {
+            font-size: 0.75rem; color: var(--primary-green); font-weight: bold;
+            text-transform: uppercase; margin-bottom: 0.8rem; letter-spacing: 0.5px;
+        }
+
+        .dynasty-list { list-style: none; font-size: 0.9rem; color: #555; margin-bottom: 1.5rem; }
+        .dynasty-list li { margin-bottom: 0.5rem; padding-left: 15px; position: relative; }
+        .dynasty-list li::before { content: "→"; position: absolute; left: 0; color: #ccc; font-size: 0.8rem; }
+
+        .dynasty-highlight-box {
+            background: #f9f9f9; border-left: 3px solid var(--accent-gold);
+            padding: 1rem; font-size: 0.85rem; border-radius: 0 4px 4px 0; margin-bottom: 1.5rem;
+        }
+
+        .dynasty-tags { text-align: center; border-top: 1px solid #eee; padding-top: 1rem; }
+        .tag-pill {
+            display: inline-block; border: 1px solid #ccc; color: #666;
+            font-size: 0.7rem; padding: 3px 10px; border-radius: 12px; margin: 0 3px;
+        }
+
+        /* Baromètre */
+        .barometer-section { margin-top: 4rem; text-align: center; }
+        .pillars-row { display: flex; justify-content: center; gap: 1rem; margin: 2rem 0; flex-wrap: wrap; }
+        .pillar-card { background: white; padding: 0.8rem 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); font-weight: 600; font-size: 0.9rem; }
+
+        /* ===================================
+           CHAPITRE 2 : NUTRITION
+           =================================== */
+        .forces-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem;
+        }
+        .force-card {
+            border: 1px solid var(--gray-border); border-radius: var(--radius-md); padding: 2rem 1.5rem;
+        }
+        .force-card.highlight { border-color: var(--accent-gold); }
+        .force-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+        .force-footer {
+            background: var(--off-white); padding: 0.8rem; border-radius: 6px;
+            font-size: 0.8rem; margin-top: 1rem;
+        }
+
+        .ritual-section {
+            background: var(--off-white); border-radius: var(--radius-lg); overflow: hidden;
+            display: grid; grid-template-columns: 1fr 1fr; margin-top: 4rem;
+        }
+        .ritual-content { padding: 3rem; }
+        .ritual-img { min-height: 400px; height: 100%; object-fit: cover; }
+        .ingredient-box { background: white; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+
+        /* ===================================
+           CHAPITRE 3 : GESTES
+           =================================== */
+        .cupping-wrapper {
+            background: var(--off-white); padding: 3rem; border-radius: var(--radius-lg); margin-top: 3rem;
+        }
+        .steps-row {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 2rem;
+        }
+        .step-item {
+            background: white; padding: 1.5rem 0.5rem; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .step-num {
+            width: 28px; height: 28px; background: var(--primary-green); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1rem auto; font-size: 0.9rem; font-weight: bold;
+        }
+        .step-desc { font-size: 0.85rem; line-height: 1.3; }
+
+        /* ===================================
+           CHAPITRE 4 : PERLE
+           =================================== */
+        .vision-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem;
+        }
+        .vision-card {
+            padding: 1.5rem; border: 1px solid var(--gray-border); border-radius: 8px;
+        }
+        .vision-title { color: var(--primary-green); font-weight: bold; margin-bottom: 0.8rem; font-size: 1.1rem; }
+
+        .transition-block {
+            text-align: center; margin: 6rem auto; max-width: 800px;
+        }
+
+        /* ===================================
+           SECTION COFFRET (DESIGN VERT FONCÉ)
+           =================================== */
+        .coffret-section {
+            background-color: var(--coffret-bg);
+            color: white;
+            padding: 5rem 0;
+        }
+
+        .coffret-header { text-align: center; margin-bottom: 3rem; }
+        .coffret-badge {
+            background: var(--accent-gold); color: white; padding: 6px 18px;
+            border-radius: 30px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;
+            display: inline-block; margin-bottom: 1rem;
+        }
+        .coffret-title { font-size: 3rem; margin-bottom: 0.5rem; color: white; }
+        .coffret-sub { font-size: 1.5rem; font-weight: 300; opacity: 0.9; }
+
+        .coffret-layout {
+            display: grid; grid-template-columns: 1fr 1.1fr; gap: 4rem; align-items: start;
+        }
+
+        .coffret-visual {
+            position: relative; background: #F0F0F0; border-radius: var(--radius-lg);
+            height: 600px; /* Ajuster selon l'image */
+        }
+        .badge-percent {
+            position: absolute; top: 20px; right: 20px; background: #D32F2F; color: white;
+            width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: bold; font-size: 0.9rem;
+        }
+        .badge-gift {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--accent-gold); color: white; padding: 10px 25px; border-radius: 30px;
+            font-weight: bold; white-space: nowrap;
+        }
+
+        .coffret-desc-text {
+            font-size: 0.95rem; line-height: 1.6; opacity: 0.9; margin-bottom: 2rem;
+        }
+
+        .treasures-list h3 {
+            font-size: 1.3rem; margin-bottom: 1.5rem; color: white; text-align: center; font-family: Georgia, serif;
+        }
+
+        .treasure-item {
+            background-color: var(--coffret-card-bg); /* Vert un peu plus clair */
+            padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem;
+            display: flex; gap: 1rem; align-items: flex-start;
+        }
+        .treasure-icon { font-size: 1.5rem; padding-top: 3px; }
+        .treasure-info h4 { color: white; font-size: 1rem; font-weight: bold; margin-bottom: 2px; }
+        .treasure-tag { color: var(--accent-gold); font-size: 0.7rem; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px; }
+        .treasure-p { font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px; line-height: 1.4; }
+        .treasure-link { font-size: 0.75rem; font-style: italic; opacity: 0.7; }
+
+        .price-card {
+            background: white; color: var(--text-main); padding: 1.5rem;
+            border-radius: var(--radius-md); text-align: center; margin-top: 2rem;
+        }
+        .price-row {
+            display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-bottom: 5px;
+        }
+        .price-old { text-decoration: line-through; color: #999; font-size: 1rem; }
+        .price-new { font-size: 2.2rem; font-weight: bold; color: var(--primary-green); }
+        .price-save { color: #D32F2F; font-size: 0.9rem; font-weight: bold; display: block; margin-bottom: 1.2rem; }
+        
+        .btn-coffret {
+            background: var(--coffret-bg); color: white; width: 100%; padding: 1rem;
+            border: none; border-radius: 6px; font-weight: bold; font-size: 1.1rem; cursor: pointer;
+        }
+        .btn-coffret:hover { background: #2e523d; }
+        
+        .reassurance { font-size: 0.75rem; color: #666; margin-top: 1rem; line-height: 1.4; }
+
+        /* ===================================
+           PRODUITS & BLOG
+           =================================== */
+        .products-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem;
+        }
+        .product-card {
+            border: 1px solid #eee; border-radius: var(--radius-md); padding: 1.5rem;
+            display: flex; flex-direction: column; justify-content: space-between; background: white;
+        }
+        .product-card.featured { grid-column: span 2; border: 1px solid var(--accent-gold); }
+        .product-img { height: 220px; margin-bottom: 1rem; }
+        .product-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+        .btn-add {
+            background: var(--primary-green); color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer;
+        }
+
+        .blog-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-top: 2rem;
+        }
+        .blog-card { border: 1px solid #eee; border-radius: var(--radius-md); overflow: hidden; }
+        .blog-content { padding: 1.5rem; }
+        .blog-tag { 
+            background: #E8F5E9; color: var(--primary-green); font-size: 0.65rem; font-weight: bold;
+            text-transform: uppercase; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 0.5rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .dynasties-grid, .ritual-section, .coffret-layout { grid-template-columns: 1fr; }
+            .products-grid, .forces-grid, .vision-grid { grid-template-columns: 1fr; }
+            .product-card.featured {
+                grid-column: span 1;
+            }
+            .steps-row { grid-template-columns: repeat(2, 1fr); }
+            .coffret-visual { height: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="section-spacer">
+        <div class="container text-center">
+            <h1 style="display:none;">La beauté selon la Chine ancienne</h1> <p class="section-subtitle" style="margin-bottom: 2rem;">
+                Depuis plus de deux mille ans, la Chine cultive une vision singulière de la beauté. Non pas comme un idéal à atteindre, mais comme l'expression naturelle d'un équilibre intérieur.
+            </p>
+
+            <div class="intro-quote-box">
+                <h3 style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.5rem;">En Médecine Traditionnelle Chinoise, la beauté n'est jamais séparée de la santé.</h3>
+                <p style="color: #555;">Le teint reflète la digestion. Les traits expriment les émotions. Le regard traduit le repos de l'esprit.</p>
+            </div>
+
+            <p style="color: var(--text-light); margin-top: 2rem;">Ce que vous allez découvrir ici, ce n'est pas une routine beauté de plus.<br>C'est une autre manière de prendre soin de vous : de l'intérieur vers l'extérieur.</p>
+        </div>
+    </section>
+
+    <section class="section-spacer" style="background: var(--off-white);">
+        <div class="container">
+            <div class="text-center">
+                <span class="chapter-badge">Chapitre 1</span>
+                <h2 class="section-title">2000 ans d'histoire : quand chaque dynastie réinvente la beauté</h2>
+                <h3 style="color: var(--primary-green); margin-top: 2rem;">La beauté : un miroir de l'âme</h3>
+                <p style="max-width: 800px; margin: 1rem auto; color: #555;">
+                    En Chine, la beauté n'est jamais séparée de l'équilibre intérieur. <strong>Le teint témoigne de la circulation du Qi, la douceur des traits reflète la paix du cœur, et la clarté du regard dévoile la fluidité des émotions.</strong>
+                </p>
+                <p style="font-size: 0.9rem; color: #999;">À travers 2000 ans, chaque dynastie a exprimé cette philosophie différemment</p>
+            </div>
+
+            <div class="dynasties-grid">
+                <div class="dynasty-card">
+                    <span class="dynasty-dates">206 AV. J.-C. - 220</span>
+                    <h3 class="dynasty-name">Han</h3>
+                    <span class="dynasty-pill">Vitalité libre</span>
+                    <div class="dynasty-quote-box">"La peau est le miroir du Qi"</div>
+                    <div class="dynasty-subhead">CE QU'ELLES PRIVILÉGIAIENT</div>
+                    <ul class="dynasty-list">
+                        <li>Silhouette élancée, énergie mobile</li>
+                        <li>Bains parfumés, massages des méridiens</li>
+                        <li>Circulation libre du souffle vital</li>
+                    </ul>
+                    <div class="dynasty-highlight-box">
+                        <strong>Zhao Feiyan</strong> incarnait "la légèreté aérienne" : un corps qui bouge, un souffle qui circule
+                    </div>
+                    <div class="dynasty-tags">
+                        <span class="tag-pill">Lien beauté/santé</span>
+                        <span class="tag-pill">Circulation du Qi</span>
+                    </div>
+                </div>
+
+                <div class="dynasty-card highlight">
+                    <span class="dynasty-dates">581 - 907</span>
+                    <h3 class="dynasty-name">Sui & Tang</h3>
+                    <span class="dynasty-pill">Plénitude rayonnante</span>
+                    <div class="dynasty-quote-box">"La beauté exprime la joie intérieure et la puissance de la vie"</div>
+                    <div class="dynasty-subhead">CE QU'ELLES PRIVILÉGIAIENT</div>
+                    <ul class="dynasty-list">
+                        <li>Visages ronds, corps pleins, traits sereins</li>
+                        <li>Onguents floraux, poudres minérales</li>
+                        <li>Beauté expressive et joyeuse</li>
+                    </ul>
+                    <div class="dynasty-highlight-box">
+                        <strong>Symboles :</strong> fleurs de pêcher et prunier — vitalité, épanouissement, atmosphère festive
+                    </div>
+                    <div class="dynasty-tags">
+                        <span class="tag-pill">Éclat naturel</span>
+                        <span class="tag-pill">La beauté s'exprime</span>
+                    </div>
+                </div>
+
+                <div class="dynasty-card">
+                    <span class="dynasty-dates">960 - 1279</span>
+                    <h3 class="dynasty-name">Song</h3>
+                    <span class="dynasty-pill">Sérénité intérieure</span>
+                    <div class="dynasty-quote-box">"Être belle, c'est rayonner de tranquillité"</div>
+                    <div class="dynasty-subhead">CE QU'ELLES PRIVILÉGIAIENT</div>
+                    <ul class="dynasty-list">
+                        <li>Teint pâle, translucide, éthéré</li>
+                        <li>Gestes mesurés, silencieux</li>
+                        <li>Le rayonnement du Shen (l'esprit)</li>
+                    </ul>
+                    <div class="dynasty-highlight-box">
+                        <strong>Le contraste :</strong> L'exubérance des Tang cède la place à une quête de pureté et d'introspection
+                    </div>
+                    <div class="dynasty-tags">
+                        <span class="tag-pill">Beauté spirituelle</span>
+                        <span class="tag-pill">La quiétude</span>
+                    </div>
+                </div>
+
+                <div class="dynasty-card highlight">
+                    <span class="dynasty-dates">1368 - 1912</span>
+                    <h3 class="dynasty-name">Ming & Qing</h3>
+                    <span class="dynasty-pill">Discipline quotidienne</span>
+                    <div class="dynasty-quote-box">"La beauté est le fruit d'un soin constant et conscient"</div>
+                    <div class="dynasty-subhead">CE QU'ELLES PRIVILÉGIAIENT</div>
+                    <ul class="dynasty-list">
+                        <li>Infusions, automassages, jade poli</li>
+                        <li>La poudre de perle (pharmacopée → beauté)</li>
+                        <li>Rituels codifiés au quotidien</li>
+                    </ul>
+                    <div class="dynasty-highlight-box">
+                        <strong>L'impératrice Cixi</strong> utilisait la poudre de perle quotidiennement jusqu'à un âge avancé
+                    </div>
+                    <div class="dynasty-tags">
+                        <span class="tag-pill">Le rituel quotidien</span>
+                        <span class="tag-pill">Patience</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="barometer-section">
+                <h3 style="color: var(--primary-green);">Le visage : un baromètre du Qi</h3>
+                <p>À travers ces époques, un même principe se maintient : <strong>en Chine, le visage est le miroir de l'équilibre intérieur.</strong></p>
+                
+                <div style="background: white; display: inline-block; text-align: left; padding: 2rem; border-radius: 8px; margin: 2rem 0;">
+                    <ul style="list-style: none;">
+                        <li class="mb-2">• Une fatigue du Foie assombrit le regard</li>
+                        <li class="mb-2">• Une agitation du Shen trouble le teint</li>
+                        <li>• Une circulation fluide illumine naturellement les traits</li>
+                    </ul>
+                </div>
+
+                <p style="font-weight: bold;">C'est pourquoi la beauté chinoise repose sur 4 piliers :</p>
+                <div class="pillars-row">
+                    <div class="pillar-card">🌊 Faire circuler</div>
+                    <div class="pillar-card">🌸 Rayonner</div>
+                    <div class="pillar-card">🕊️ Apaiser</div>
+                    <div class="pillar-card">💡 Cultiver</div>
+                </div>
+                <p style="font-style: italic; color: #777; font-size: 0.9rem;">La beauté n'est pas un résultat, mais un chemin.</p>
+                <div class="mt-4"><a href="#" class="link-arrow">Lire l'article complet : L'histoire de la beauté en Chine →</a></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="transition">
+        <div class="container">
+            <p class="transition-text">
+                Mais qu'avaient compris les Chinoises il y a 2000 ans ?<br>
+                Que la beauté se nourrit d'abord de l'intérieur...
+            </p>
+        </div>
+    </section>
+
+    <section class="section-spacer">
+        <div class="container">
+            <div class="text-center">
+                <span class="chapter-badge">Chapitre 2</span>
+                <h2 class="section-title">La beauté commence dans l'assiette</h2>
+            </div>
+            
+            <div class="img-placeholder" style="height: 300px; margin: 2rem 0;">Image femme ambiance douce</div>
+
+            <div class="text-center" style="max-width: 800px; margin: 0 auto;">
+                <h3>Quand l'alimentation devient le premier soin de beauté</h3>
+                <p class="mt-2 text-muted">Depuis l'Antiquité chinoise, les femmes cultivaient leur éclat à travers des choix alimentaires précis : des saveurs qui réchauffent, des plantes qui apaisent...</p>
+                <p class="mt-2"><strong>Une intuition ancienne, devenue étonnamment actuelle : bien manger, c'est déjà prendre soin de sa peau.</strong></p>
+            </div>
+
+            <h3 class="text-center mt-4">Les trois forces qui façonnent la beauté du visage</h3>
+            <div class="forces-grid">
+                <div class="force-card">
+                    <span class="force-icon">⚡</span>
+                    <h4>Le Qi</h4>
+                    <span style="font-size: 0.8rem; color: var(--primary-green); font-weight: bold; display: block; margin-bottom: 0.5rem;">L'énergie qui allume le visage</span>
+                    <p style="font-size: 0.9rem;">Le Qi remonte jusqu'au visage et lui redonne de la lumière.</p>
+                    <div class="force-footer"><strong>Quand il circule :</strong> teint lumineux, yeux vifs</div>
+                </div>
+                <div class="force-card highlight">
+                    <span class="force-icon">🩸</span>
+                    <h4>Le Sang</h4>
+                    <span style="font-size: 0.8rem; color: var(--primary-green); font-weight: bold; display: block; margin-bottom: 0.5rem;">La matière qui nourrit la peau</span>
+                    <p style="font-size: 0.9rem;">La substance qui hydrate et donne à la peau sa texture.</p>
+                    <div class="force-footer"><strong>Quand il est ample :</strong> teint uniforme, peau souple</div>
+                </div>
+                <div class="force-card">
+                    <span class="force-icon">✨</span>
+                    <h4>Le Shen</h4>
+                    <span style="font-size: 0.8rem; color: var(--primary-green); font-weight: bold; display: block; margin-bottom: 0.5rem;">Ce qui traverse le regard</span>
+                    <p style="font-size: 0.9rem;">Le Shen est l'esprit qui se lit dans les yeux.</p>
+                    <div class="force-footer"><strong>Quand il est apaisé :</strong> traits détendus</div>
+                </div>
+            </div>
+
+            <div class="intro-quote-box text-center" style="border:none; box-shadow:none; background: #fafafa; margin: 3rem auto; border-radius: 12px;">
+                <div style="font-size: 1.5rem; color: var(--primary-green); margin-bottom: 0.5rem;">夫精明五色者 气之华也</div>
+                <p style="font-style: italic;">« La clarté des yeux et l'éclat du teint sont l'expression extérieure du Qi des organes internes. »</p>
+                <span style="font-size: 0.8rem; color: #999;">— Huangdi Neijing</span>
+            </div>
+
+            <div class="ritual-section">
+                <div class="ritual-content">
+                    <span style="background: #D4AF37; color: white; font-size: 0.7rem; font-weight: bold; padding: 4px 10px; border-radius: 4px; text-transform: uppercase;">Rituel Ancestral</span>
+                    <h3 class="mt-2 mb-2">Infusion Rose, Jujube & Goji</h3>
+                    <p style="font-size: 0.9rem; color: #666;">L'infusion de beauté la plus emblématique en Chine</p>
+                    
+                    <div class="ingredient-box">
+                        <h4 style="color: var(--primary-green); font-size: 0.9rem; margin-bottom: 0.5rem;">Ingrédients</h4>
+                        <ul style="font-size: 0.9rem; line-height: 1.8; list-style: none;">
+                            <li>5-6 boutons de rose</li>
+                            <li>5 fruits de jujube</li>
+                            <li>1 c. à soupe de goji</li>
+                            <li>Eau chaude (80-90°C)</li>
+                        </ul>
+                    </div>
+                    <p style="font-size: 0.85rem;">Les <strong>boutons de rose</strong> détendent le Foie, les <strong>jujubes</strong> nourrissent le Sang et apportent du réconfort, tandis que les <strong>baies de goji</strong> soutiennent la vitalité.</p>
+                </div>
+                <div class="img-placeholder ritual-img">Image Théière & Rose</div>
+            </div>
+            <div class="text-center mt-4"><a href="#" class="link-arrow">Lire l'article complet : La beauté commence dans l'assiette →</a></div>
+        </div>
+    </section>
+
+    <!-- TRANSITION 2 -->
+    <section class="transition">
+        <div class="container">
+            <p class="transition-text">
+                À ces soins internes, les Chinoises ajoutaient des gestes précis...
+            </p>
+        </div>
+    </section>
+
+    <section class="section-spacer">
+        <div class="container">
+            <div class="text-center">
+                <span class="chapter-badge">Chapitre 3</span>
+                <h2 class="section-title">Les arts du soin : quand les gestes subliment la beauté</h2>
+                <p class="section-subtitle">
+                    Si la beauté chinoise commence à l'intérieur, elle s'exprime tout autant à travers 
+                    une longue tradition de soins externes. Des gestes précis, sensoriels, 
+                    hérités de siècles d'observation.
+                </p>
+            </div>
+            
+            <div class="img-placeholder" style="height: 300px; margin: 2rem 0;">Image Massage Visage</div>
+
+            <div class="text-center" style="max-width: 800px; margin: 0 auto;">
+                <h3>Le principe : remettre en mouvement</h3>
+                <p class="mt-2">Bien avant l'ère des sérums high-tech, les femmes de la cour maîtrisaient déjà l'art du massage... Leur intention : <strong>remettre en mouvement, adoucir, rendre la peau lumineuse sans la brusquer.</strong></p>
+            </div>
+
+            <div class="cupping-wrapper">
+                <h3>Le face cupping : un geste ancien pour un visage moderne</h3>
+                <p class="mt-2 mb-4">Né du principe traditionnel « faire circuler pour rétablir l'équilibre », le face cupping utilise de petites ventouses souples.</p>
+                <div class="img-placeholder" style="height: 250px; margin-bottom: 2rem;">Image Ventouses alignées</div>
+
+                <div style="background: white; padding: 2rem; border-radius: 8px;">
+                    <h4 style="color: var(--primary-green); margin-bottom: 1rem;">Ses effets</h4>
+                    <ul style="list-style: none;">
+                        <li class="mb-2">→ Réveille la microcirculation : le teint gagne en luminosité</li>
+                        <li class="mb-2">→ Détend les zones de tension : mâchoire, tempes, front</li>
+                        <li class="mb-2">→ Stimule l'élasticité en mobilisant le Qi et le Sang</li>
+                        <li>→ Affine visuellement les traits en libérant ce qui les alourdit</li>
+                    </ul>
+                </div>
+
+                <h4 style="margin-top: 2rem; color: var(--primary-green);">Comment pratiquer le face cupping</h4>
+                <div class="steps-row">
+                    <div class="step-item"><div class="step-num">1</div><div class="step-desc">Nettoyez et appliquez une huile</div></div>
+                    <div class="step-item"><div class="step-num">2</div><div class="step-desc">Créez une légère aspiration</div></div>
+                    <div class="step-item"><div class="step-num">3</div><div class="step-desc">Glissez vers l'extérieur</div></div>
+                    <div class="step-item"><div class="step-num">4</div><div class="step-desc">Adaptez la pression</div></div>
+                    <div class="step-item"><div class="step-num">5</div><div class="step-desc">5-10 min, 2-3x/semaine</div></div>
+                </div>
+                <p class="text-center mt-4" style="font-style: italic; font-size: 0.9rem;">En Chine ancienne, on disait que ces gestes servaient à « libérer le vent et le stagnant ». <strong>Une manière poétique de dire qu'une peau tendue est une peau qui manque d'air et de mouvement.</strong></p>
+            </div>
+            <div class="text-center mt-4"><a href="#" class="link-arrow">Lire l'article complet : Les arts du soin →</a></div>
+        </div>
+    </section>
+
+    <section class="section-spacer">
+        <div class="container">
+            <div class="text-center">
+                <span class="chapter-badge">Chapitre 4</span>
+                <h2 class="section-title">La poudre de perle : 2000 ans de secret beauté</h2>
+            </div>
+
+            <div class="img-placeholder" style="height: 300px; margin: 2rem 0;">Image Femme pensée profonde</div>
+            
+            <div class="text-center" style="max-width: 800px; margin: 0 auto;">
+                <h3>Une matière vivante, née dans le silence de l'eau</h3>
+                <p class="mt-2">Dans les textes anciens, la perle était décrite comme une matière vivante, 
+                        symbole de pureté, de transformation et de rayonnement intérieur.</p>
+                <p class="mt-2">
+                        Lorsqu'elle est réduite en poudre, elle devient un ingrédient rare, associé à 
+                        <strong>la sérénité du cœur, à la clarté du regard et à l'uniformité du teint.</strong>
+                    </p>
+            </div>
+
+            <div style="background: #fdfdfd; border: 1px solid #eee; padding: 1.5rem; margin-top: 2rem;">
+                <h4 style="color: var(--primary-green);">L'histoire de l'impératrice Cixi</h4>
+                <p class="mt-2 text-muted">L'une des anecdotes les plus célèbres concerne l'impératrice Cixi, qui en avait fait un rituel immuable... Même à un âge avancé, les chroniques décrivent un teint clair, lisse et étonnamment lumineux.</p>
+            </div>
+
+            <div class="mt-4">
+                <div class="img-placeholder" style="height: 250px;">Image Pot Poudre de Perle</div>
+                <h3 class="text-center mt-4">La vision de la MTC : un trésor pour le Cœur, le Foie et la peau</h3>
+                <p class="text-center text-muted" style="max-width: 800px; margin: 1rem auto;">Dans le Bencao Gangmu... elle est reliée aux méridiens du <strong>Cœur et du Foie</strong>.</p>
+                
+                <div class="vision-grid">
+                    <div class="vision-card">
+                        <div class="vision-title">Apaiser le Shen</div>
+                        <p style="font-size: 0.9rem;">Calme l'agitation mentale, favorise un sommeil serein et une clarté d'esprit qui se reflète sur le visage.</p>
+                    </div>
+                    <div class="vision-card">
+                        <div class="vision-title">Soutenir le Foie</div>
+                        <p style="font-size: 0.9rem;">Gouverne la libre circulation du Qi et des émotions. Les traits se détendent, le regard s'illumine.</p>
+                    </div>
+                    <div class="vision-card">
+                        <div class="vision-title">Régénérer et uniformiser</div>
+                        <p style="font-size: 0.9rem;">Favorise la cicatrisation, adoucit la peau, atténue les taches et unifie le teint grâce à sa richesse en minéraux.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 text-center"><a href="#" class="link-arrow">Lire l'article complet : 2000 ans de secret beauté →</a></div>  
+
+            <div class="transition-block">
+                <h3 style="font-style: italic; color: #999; margin-bottom: 2rem;">Comment réunir tous ces enseignements millénaires dans un quotidien moderne ?</h3>
+                <p style="font-size: 1.5rem; color: var(--primary-green); line-height: 1.4;">Nous avons créé le rituel complet :<br><strong>les 4 trésors essentiels de la beauté chinoise, réunis dans un coffret pensé pour l'hiver.</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="coffret-section">
+        <div class="container">
+            <div class="coffret-header">
+                <div class="coffret-badge">Édition Limitée - Noël 2024</div>
+                <h2 class="coffret-title">Le Coffret Beauté de Noël</h2>
+                <div class="coffret-sub">Éclat & Détente</div>
+                <p style="margin-top: 1rem; opacity: 0.8;">Les 4 trésors de la MTC pour révéler votre beauté naturelle</p>
+            </div>
+
+            <div class="coffret-layout">
+                <div class="coffret-visual">
+                    <div class="badge-percent">-28%</div>
+                    <div class="img-placeholder" style="height: 100%; border-radius: var(--radius-lg);">Image du Coffret</div>
+                    <div class="badge-gift">+ 2 ventouses offertes</div>
+                </div>
+
+                <div class="coffret-details">
+                    <p class="coffret-desc-text">Ce coffret réunit les 4 dimensions essentielles que vous venez de découvrir : un ingrédient millénaire (la perle), des plantes qui nourrissent de l'intérieur (alimentation), et des gestes ancestraux (ventouses).</p>
+
+                    <div class="treasures-list">
+                        <h3>Les 4 trésors du coffret</h3>
+                        
+                        <div class="treasure-item">
+                            <div class="treasure-icon">🌸</div>
+                            <div class="treasure-info">
+                                <h4>Poudre de Perle (30g)</h4>
+                                <span class="treasure-tag">Le trésor impérial de Cixi</span>
+                                <p class="treasure-p">Le cœur de ce coffret. Utilisée depuis 2000 ans pour apaiser le Shen, soutenir le Foie et uniformiser le teint.</p>
+                                <span class="treasure-link">→ Chapitre 4 : La poudre de perle</span>
+                            </div>
+                        </div>
+
+                        <div class="treasure-item">
+                            <div class="treasure-icon">🌿</div>
+                            <div class="treasure-info">
+                                <h4>SuperGreen Herbe d'Orge & Ashitaba (100g)</h4>
+                                <span class="treasure-tag">Beauté de l'Intérieur</span>
+                                <p class="treasure-p">Purifie l'organisme, soutient la digestion et ravive l'éclat. Pour nourrir le Qi qui illumine le visage.</p>
+                                <span class="treasure-link">→ Chapitre 2 : L'alimentation</span>
+                            </div>
+                        </div>
+
+                        <div class="treasure-item">
+                            <div class="treasure-icon">🌹</div>
+                            <div class="treasure-info">
+                                <h4>Boutons de Rose (20g)</h4>
+                                <span class="treasure-tag">Harmonie émotionnelle</span>
+                                <p class="treasure-p">Détend le Foie, apaise les émotions et illumine le teint. L'infusion beauté par excellence.</p>
+                                <span class="treasure-link">→ Chapitre 2 : Le rituel ancestral</span>
+                            </div>
+                        </div>
+
+                        <div class="treasure-item">
+                            <div class="treasure-icon">💆‍♀️</div>
+                            <div class="treasure-info">
+                                <h4>Ventouses Visage (kit de 4)</h4>
+                                <span class="treasure-tag">Le geste liftant ancestral</span>
+                                <p class="treasure-p">Stimule la microcirculation, lisse les traits, libère les tensions. Le face cupping en 5 minutes.</p>
+                                <span class="treasure-link">→ Chapitre 3 : Les gestes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="price-card">
+                        <div class="price-row">
+                            <span class="price-old">68,98 €</span>
+                            <span class="price-new">49,67 €</span>
+                        </div>
+                        <span class="price-save">Économisez 19,31 €</span>
+                        <button class="btn-coffret">Commander le coffret</button>
+                        <div class="reassurance">
+                            ✓ Livraison offerte dès 39€<br>
+                            ✓ En stock • Expédition sous 48h<br>
+                            ✓ Sac en velours offert
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-spacer">
+        <div class="container">
+            <h2 class="text-center" style="font-size: 2rem; margin-bottom: 0.5rem;">Découvrir les produits individuellement</h2>
+            <p class="text-center" style="color: #666; margin-bottom: 2rem;">Vous préférez composer votre propre rituel ? Chaque trésor du coffret est disponible séparément.</p>
+
+            <div class="products-grid">
+                <div class="product-card featured">
+                    <div class="img-placeholder product-img">Image Coffret</div>
+                    <div>
+                        <h3>Coffret Beauté de Noël</h3>
+                        <p style="font-size: 0.9rem; color: #888;">Les 4 trésors réunis</p>
+                    </div>
+                    <div class="product-footer">
+                        <span style="font-weight: bold; color: var(--primary-green); font-size: 1.1rem;">49,67 €</span>
+                        <button class="btn-add">Ajouter</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="img-placeholder product-img">Image Perle</div>
+                    <div>
+                        <h3>Poudre de Perle</h3>
+                        <p style="font-size: 0.9rem; color: #888;">Zhen zhu fen - 30g</p>
+                    </div>
+                    <div class="product-footer">
+                        <span style="font-weight: bold; color: var(--primary-green); font-size: 1.1rem;">24,90 €</span>
+                        <button class="btn-add">Ajouter</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="img-placeholder product-img">Image SuperGreen</div>
+                    <div>
+                        <h3>SuperGreen Silhouette & Peau</h3>
+                        <p style="font-size: 0.9rem; color: #888;">Herbe d'orge & Ashitaba - 100g</p>
+                    </div>
+                    <div class="product-footer">
+                        <span style="font-weight: bold; color: var(--primary-green); font-size: 1.1rem;">19,90 €</span>
+                        <button class="btn-add">Ajouter</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="img-placeholder product-img">Image Rose</div>
+                    <div>
+                        <h3>Boutons de Rose</h3>
+                        <p style="font-size: 0.9rem; color: #888;">Mei gui hua - 100g</p>
+                    </div>
+                    <div class="product-footer">
+                        <span style="font-weight: bold; color: var(--primary-green); font-size: 1.1rem;">11,90 €</span>
+                        <button class="btn-add">Ajouter</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="img-placeholder product-img">Image Ventouses</div>
+                    <div>
+                        <h3>Ventouses Visage</h3>
+                        <p style="font-size: 0.9rem; color: #888;">Kit complet - 4 tailles</p>
+                    </div>
+                    <div class="product-footer">
+                        <span style="font-weight: bold; color: var(--primary-green); font-size: 1.1rem;">15,90 €</span>
+                        <button class="btn-add">Ajouter</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="section-spacer" style="background: var(--off-white);">
+        <div class="container">
+            <h2 class="text-center" style="font-size: 2rem; margin-bottom: 0.5rem;">Approfondir votre compréhension</h2>
+            <p class="text-center" style="color: #666; margin-bottom: 2rem;">Les quatre articles qui ont inspiré cette page, pour prolonger votre lecture</p>
+
+            <div class="blog-grid">
+                <div class="blog-card">
+                    <div class="img-placeholder" style="height: 250px;">Image Article 1</div>
+                    <div class="blog-content">
+                        <span class="blog-tag">Histoire</span>
+                        <h4>L'histoire de la beauté en Chine</h4>
+                        <p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0 1rem 0;">Rituels, lumière et harmonie depuis plus de 2 000 ans : voyage à travers les dynasties.</p>
+                        <a href="#" class="link-arrow">Lire l'article →</a>
+                    </div>
+                </div>
+                <div class="blog-card">
+                    <div class="img-placeholder" style="height: 250px;">Image Article 2</div>
+                    <div class="blog-content">
+                        <span class="blog-tag">Alimentation</span>
+                        <h4>La beauté commence dans l'assiette</h4>
+                        <p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0 1rem 0;">La vision chinoise du soin par l'alimentation : comment les choix alimentaires façonnent l'éclat du visage.</p>
+                        <a href="#" class="link-arrow">Lire l'article →</a>
+                    </div>
+                </div>
+                <div class="blog-card">
+                    <div class="img-placeholder" style="height: 250px;">Image Article 3</div>
+                    <div class="blog-content">
+                        <span class="blog-tag">Gestes</span>
+                        <h4>Les arts du soin chinois</h4>
+                        <p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0 1rem 0;">Quand les gestes chinois redessinent la beauté du visage : massages, ventouses et rituels ancestraux.</p>
+                        <a href="#" class="link-arrow">Lire l'article →</a>
+                    </div>
+                </div>
+                <div class="blog-card">
+                    <div class="img-placeholder" style="height: 250px;">Image Article 4</div>
+                    <div class="blog-content">
+                        <span class="blog-tag">Ingrédient</span>
+                        <h4>2000 ans de secret : la poudre de perle</h4>
+                        <p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0 1rem 0;">Comment la poudre de perle est devenue une icône, de l'impératrice Cixi à aujourd'hui.</p>
+                        <a href="#" class="link-arrow">Lire l'article →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>
