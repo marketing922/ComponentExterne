@@ -4,6 +4,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <title>Ventes Flash Countdown</title>
     <style>
         /* 全局重置，确保 iframe 边缘无缝隙 */
@@ -18,6 +22,7 @@
             /* 这里的 padding-bottom 是为了防止内容紧贴底部，可根据 iframe 高度微调 */
             padding-bottom: 20px;
             width: 100%;
+            font-family: 'Poppins', sans-serif;
         }
 
         /* --- 1. 标题区域：全宽背景 --- */
@@ -36,7 +41,6 @@
 
         .text-title>p {
             font-size: 1.3em;
-            font-weight: 700;
             /* 特粗字体 */
             margin: 0;
             color: #000;
@@ -153,7 +157,7 @@
 <body>
 
     <div id="dynamic-title" class="text-title" style="display:none;">
-        <p><span id="title-text">...</span></p>
+        <p><strong><span id="title-text">...</span></strong></p>
     </div>
 
     <div id="countdown-wrapper" class="countdown-hidden">
