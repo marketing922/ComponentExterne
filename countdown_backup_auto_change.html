@@ -206,39 +206,14 @@
 
             const params = new URLSearchParams(window.location.search);
             const langParam = params.get("language");
+            // 获取测试用的时间参数，例如 ?debug-date=2025-10-14T11:00:00
             const debugDateParam = params.get("debug-date");
             const currentLang = (langParam && i18n[langParam]) ? langParam : "fr";
             const textData = i18n[currentLang];
 
-            // 默认值：周二(2) 到 周三(3)
-            let startDay = 2; 
-            let endDay = 3;   
-
-            const pStart = params.get("start_day");
-            const pEnd = params.get("end_day");
-
-            // 只有当 start_day 和 end_day 都有值时才处理
-            if (pStart && pEnd) {
-                const inputStart = parseInt(pStart, 10);
-                const inputEnd = parseInt(pEnd, 10);
-
-                // 校验：确保用户输入的是 1 到 7 之间的数字
-                if (inputStart >= 1 && inputStart <= 7 && inputEnd >= 1 && inputEnd <= 7) {
-                    
-                    // 【关键转换】
-                    // 你的输入：1(周一) -> 系统识别为 1
-                    // 你的输入：7(周日) -> 系统识别为 0 (因为电脑认为周日是0)
-                    // 使用取余数算法： 7 % 7 = 0;  1 % 7 = 1;
-                    
-                    startDay = inputStart % 7;
-                    endDay = inputEnd % 7;
-
-                    console.log(`配置成功：周${inputStart}开始，周${inputEnd}结束`);
-                } 
-            }
-
             // ================= 核心逻辑 =================
             function calculateTarget() {
+                // 如果有 debug 参数，使用 debug 时间，否则使用当前时间
                 const now = debugDateParam ? new Date(debugDateParam) : new Date();
 
                 const parisTimeStr = now.toLocaleString("en-US", { timeZone: "Europe/Paris" });
@@ -249,63 +224,35 @@
 
                 let isFlashSaleActive = false;
 
-                // ============================================
-                // 动态判断逻辑 (已替换硬编码的 2 和 3)
-                // ============================================
-                
-                // 1. 如果正好是开始当天，且时间 >= 10:00
-                if (day === startDay && hour >= 10) {
+                // 周二 10:00 (含) ~ 周三 10:00 (不含)
+                if (day === 2 && hour >= 10) {
                     isFlashSaleActive = true;
-                } 
-                // 2. 如果正好是结束当天，且时间 < 10:00
-                else if (day === endDay && hour < 10) {
+                } else if (day === 3 && hour < 10) {
                     isFlashSaleActive = true;
-                }
-                // 3. (增强逻辑) 处理跨多天的情况
-                // 例如：周五(5)开始，周日(0)结束。
-                else {
-                    // 如果 start < end (例如周二到周四)，且当前天在中间
-                    if (startDay < endDay && day > startDay && day < endDay) {
-                        isFlashSaleActive = true;
-                    }
-                    // 如果 start > end (跨周，例如周五到周一)，且当前天在中间
-                    else if (startDay > endDay && (day > startDay || day < endDay)) {
-                        isFlashSaleActive = true;
-                    }
                 }
 
-                // ============================================
-                // 计算目标时间戳
-                // ============================================
                 let targetDateObj = new Date(parisDate);
                 targetDateObj.setMinutes(0);
                 targetDateObj.setSeconds(0);
                 targetDateObj.setMilliseconds(0);
 
                 if (isFlashSaleActive) {
-                    // --- 活动进行中：倒计时到 EndDay 10:00 ---
-                    const daysToAdd = (endDay - day + 7) % 7;
-                    
-                    // 特殊修正：如果是结束当天且没到10点，daysToAdd算出来是0，这是对的。
-                    // 不需要额外加7天，因为就是“今天”10点结束。
-                    
+                    const daysToAdd = (3 - day + 7) % 7;
                     targetDateObj.setDate(parisDate.getDate() + daysToAdd);
                     targetDateObj.setHours(10);
                 } else {
-                    // --- 活动未开始：倒计时到 StartDay 10:00 ---
-                    let daysUntilNextStart = (startDay - day + 7) % 7;
-
-                    // 特殊修正：如果是开始当天，但还没到10点 (hour < 10)
-                    if (day === startDay && hour < 10) {
-                        daysUntilNextStart = 0; // 目标就是今天
-                    } else {
-                        // 如果算出是0（说明是 StartDay 且过了10点，或者正好整除），
-                        // 但因为上面的 if(isFlashSaleActive) 已经排除了“正在进行”，
-                        // 所以这里如果是 0，意味着要等“下周的这一天”
-                        if (daysUntilNextStart === 0) daysUntilNextStart = 7;
+                    let daysUntilNextTue = (2 - day + 7) % 7;
+                    if (daysUntilNextTue === 0 && hour >= 10) {
+                        // 逻辑在上方 isFlashSaleActive 已覆盖
                     }
 
-                    targetDateObj.setDate(parisDate.getDate() + daysUntilNextStart);
+                    if (day === 2 && hour < 10) {
+                        daysUntilNextTue = 0;
+                    } else {
+                        if (daysUntilNextTue === 0) daysUntilNextTue = 7;
+                    }
+
+                    targetDateObj.setDate(parisDate.getDate() + daysUntilNextTue);
                     targetDateObj.setHours(10);
                 }
 
@@ -324,18 +271,12 @@
 
             // ================= 工具函数 =================
             function zonedDateTimeToUTCTimestamp(year, month, day, hour, minute, second, timeZone) {
-                // 处理日期的溢出（比如月只有30天，计算出的day是32）
-                // 最好让 Date 对象自己处理，这里重新构造一个 Local Date 对象来确保 ISO 字符串合法性略繁琐
-                // 更简单的办法：利用 Date 的自动进位特性，但在生成 ISO 字符串前需要小心。
-                // -------------------------------------------------------------
-                // 修正：上面的 calculateTarget 已经用 setDate 自动处理了进位（例如32号变成下月1号）
-                // 所以传入这里的 year/month/day 是合法的。直接拼字符串即可。
-                
                 const isoLocal = `${year.toString().padStart(4, "0")}-${(month + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}T${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}`;
                 const localStr = new Date(isoLocal).toLocaleString("en-US", { timeZone });
                 return new Date(localStr).getTime();
             }
 
+            // ================= 界面更新 =================
             // ================= 界面更新 =================
             function updateUI() {
                 const state = calculateTarget();
@@ -357,20 +298,19 @@
                 document.getElementById("label-minutes").textContent = textData.labels[2];
                 document.getElementById("label-seconds").textContent = textData.labels[3];
 
-                // 3. 计算倒计时
+                // 3. 计算倒计时 (修正部分在这里！)
                 let now;
                 if (debugDateParam) {
+                    // 如果是调试模式，强制认为 "现在" 就是 URL 里的时间
                     now = new Date(debugDateParam).getTime();
                 } else {
+                    // 否则使用真实的流逝时间
                     now = Date.now();
                 }
 
                 const distance = state.targetTimestamp - now;
 
                 if (distance < 0) {
-                    // 理论上 distance 不该小于0，因为我们总是指向“未来”的一个时间点。
-                    // 除非 calculateTarget 逻辑有漏洞导致指向了“刚才”。
-                    // 作为兜底显示 00
                     document.getElementById("days").textContent = "00";
                     document.getElementById("hours").textContent = "00";
                     document.getElementById("minutes").textContent = "00";
@@ -395,9 +335,6 @@
 
         })();
     </script>
-
-
-
 </body>
 
 </html>
