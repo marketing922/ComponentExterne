@@ -185,23 +185,11 @@
 
     <script>
         (function () {
-            // ================= 配置区域 =================
+            // ================= Configuration =================
             const i18n = {
-                "fr": {
-                    activeTitle: "Fin de ventes flash",
-                    upcomingTitle: "Prochaines ventes flash",
-                    labels: ["Jours", "Heures", "Minutes", "Secondes"]
-                },
-                "en": {
-                    activeTitle: "Flash sales end in",
-                    upcomingTitle: "Next flash sales in",
-                    labels: ["Days", "Hours", "Minutes", "Seconds"]
-                },
-                "zh-CN": {
-                    activeTitle: "限时特卖结束倒计时",
-                    upcomingTitle: "距离下次特卖还有",
-                    labels: ["天", "时", "分", "秒"]
-                }
+                "fr": { activeTitle: "Fin de ventes flash", upcomingTitle: "Prochaines ventes flash", labels: ["Jours", "Heures", "Minutes", "Secondes"] },
+                "en": { activeTitle: "Flash sales end in", upcomingTitle: "Next flash sales in", labels: ["Days", "Hours", "Minutes", "Seconds"] },
+                "zh-CN": { activeTitle: "限时特卖结束倒计时", upcomingTitle: "距离下次特卖还有", labels: ["天", "时", "分", "秒"] }
             };
 
             const params = new URLSearchParams(window.location.search);
@@ -210,189 +198,177 @@
             const currentLang = (langParam && i18n[langParam]) ? langParam : "fr";
             const textData = i18n[currentLang];
 
-            // 默认值：周二(2) 到 周三(3)
-            let startDay = 2; 
-            let endDay = 3;   
+            // --- 1. Parsing des Périodes Multiples ---
+            // Format attendu URL: start_days=1,4 & end_days=2,5 (Lundi->Mardi ET Jeudi->Vendredi)
+            let periods = [];
 
-            const pStart = params.get("start_day");
-            const pEnd = params.get("end_day");
+            const pStarts = params.get("start_days") ? params.get("start_days").split(',') : ["2"]; // Défaut: Mardi
+            const pEnds = params.get("end_days") ? params.get("end_days").split(',') : ["3"];     // Défaut: Mercredi
 
-            // 只有当 start_day 和 end_day 都有值时才处理
-            if (pStart && pEnd) {
-                const inputStart = parseInt(pStart, 10);
-                const inputEnd = parseInt(pEnd, 10);
-
-                // 校验：确保用户输入的是 1 到 7 之间的数字
-                if (inputStart >= 1 && inputStart <= 7 && inputEnd >= 1 && inputEnd <= 7) {
-                    
-                    // 【关键转换】
-                    // 你的输入：1(周一) -> 系统识别为 1
-                    // 你的输入：7(周日) -> 系统识别为 0 (因为电脑认为周日是0)
-                    // 使用取余数算法： 7 % 7 = 0;  1 % 7 = 1;
-                    
-                    startDay = inputStart % 7;
-                    endDay = inputEnd % 7;
-
-                    console.log(`配置成功：周${inputStart}开始，周${inputEnd}结束`);
-                } 
+            // Création de la liste des créneaux
+            for (let i = 0; i < Math.min(pStarts.length, pEnds.length); i++) {
+                const s = parseInt(pStarts[i].trim());
+                const e = parseInt(pEnds[i].trim());
+                if (!isNaN(s) && !isNaN(e)) {
+                    // Conversion Input 1-7 vers JS 0-6 (Dimanche=0, Lundi=1 ... Samedi=6)
+                    // Input 7 (Dimanche) devient 0
+                    periods.push({
+                        startDay: s % 7,
+                        endDay: e % 7
+                    });
+                }
             }
 
-            // ================= 核心逻辑 =================
+            console.log("Périodes configurées :", periods);
+
+            // ================= Cœur Logique =================
+
+            // Convertit un jour/heure en "Heure de la semaine" (0 à 167) pour comparaison facile
+            function getWeekHour(day, hour) {
+                return day * 24 + hour;
+            }
+
             function calculateTarget() {
                 const now = debugDateParam ? new Date(debugDateParam) : new Date();
-
+                // Force l'heure de Paris
                 const parisTimeStr = now.toLocaleString("en-US", { timeZone: "Europe/Paris" });
                 const parisDate = new Date(parisTimeStr);
 
-                const day = parisDate.getDay();
-                const hour = parisDate.getHours();
+                const currentDay = parisDate.getDay();
+                const currentHour = parisDate.getHours();
+                const currentWeekHour = getWeekHour(currentDay, currentHour); // Où sommes-nous dans la semaine (0-167)
 
-                let isFlashSaleActive = false;
+                let activePeriod = null;
+                let nextPeriodStart = null;
+                let minDiffToNext = Infinity;
 
-                // ============================================
-                // 动态判断逻辑 (已替换硬编码的 2 和 3)
-                // ============================================
-                
-                // 1. 如果正好是开始当天，且时间 >= 10:00
-                if (day === startDay && hour >= 10) {
-                    isFlashSaleActive = true;
-                } 
-                // 2. 如果正好是结束当天，且时间 < 10:00
-                else if (day === endDay && hour < 10) {
-                    isFlashSaleActive = true;
-                }
-                // 3. (增强逻辑) 处理跨多天的情况
-                // 例如：周五(5)开始，周日(0)结束。
-                else {
-                    // 如果 start < end (例如周二到周四)，且当前天在中间
-                    if (startDay < endDay && day > startDay && day < endDay) {
-                        isFlashSaleActive = true;
+                // --- A. Vérifier si on est DANS une période (ACTIVE) ---
+                for (let p of periods) {
+                    const startWH = getWeekHour(p.startDay, 10); // Début à 10h
+                    const endWH = getWeekHour(p.endDay, 10);     // Fin à 10h
+
+                    let isActive = false;
+
+                    if (startWH < endWH) {
+                        // Semaine standard (ex: Mar -> Mer)
+                        if (currentWeekHour >= startWH && currentWeekHour < endWH) isActive = true;
+                    } else {
+                        // Chevauchement dimanche (ex: Ven -> Lun)
+                        // Actif si après le début OU avant la fin
+                        if (currentWeekHour >= startWH || currentWeekHour < endWH) isActive = true;
                     }
-                    // 如果 start > end (跨周，例如周五到周一)，且当前天在中间
-                    else if (startDay > endDay && (day > startDay || day < endDay)) {
-                        isFlashSaleActive = true;
+
+                    if (isActive) {
+                        activePeriod = p;
+                        break; // On a trouvé, pas besoin de chercher plus loin
                     }
                 }
 
-                // ============================================
-                // 计算目标时间戳
-                // ============================================
-                let targetDateObj = new Date(parisDate);
+                const targetDateObj = new Date(parisDate);
                 targetDateObj.setMinutes(0);
                 targetDateObj.setSeconds(0);
                 targetDateObj.setMilliseconds(0);
+                targetDateObj.setHours(10); // Cible toujours 10h
 
-                if (isFlashSaleActive) {
-                    // --- 活动进行中：倒计时到 EndDay 10:00 ---
-                    const daysToAdd = (endDay - day + 7) % 7;
-                    
-                    // 特殊修正：如果是结束当天且没到10点，daysToAdd算出来是0，这是对的。
-                    // 不需要额外加7天，因为就是“今天”10点结束。
-                    
+                if (activePeriod) {
+                    // === CAS 1 : C'est EN COURS ===
+                    // Objectif : La fin de cette période
+                    let daysToAdd = (activePeriod.endDay - currentDay + 7) % 7;
+
+                    // Correction si on est le jour de la fin mais avant 10h (daysToAdd sera 0, c'est correct)
+                    // Correction si cross-week (ex: aujd vendredi, fin lundi. 1 - 5 = -4 => +7 = 3 jours. correct)
+
+                    // Si le calcul tombe sur aujourd'hui mais qu'il est passé 10h (impossible car on serait 'upcoming'),
+                    // ou si on chevauche la semaine, la logique modulo +7 gère la plupart des cas.
+                    // Sécurité : Si on est le jour de fin et heure >= 10, ce n'est plus actif (déjà filtré avant).
+                    // Si on est le jour de fin et heure < 10, daysToAdd = 0.
+
                     targetDateObj.setDate(parisDate.getDate() + daysToAdd);
-                    targetDateObj.setHours(10);
-                } else {
-                    // --- 活动未开始：倒计时到 StartDay 10:00 ---
-                    let daysUntilNextStart = (startDay - day + 7) % 7;
 
-                    // 特殊修正：如果是开始当天，但还没到10点 (hour < 10)
-                    if (day === startDay && hour < 10) {
-                        daysUntilNextStart = 0; // 目标就是今天
-                    } else {
-                        // 如果算出是0（说明是 StartDay 且过了10点，或者正好整除），
-                        // 但因为上面的 if(isFlashSaleActive) 已经排除了“正在进行”，
-                        // 所以这里如果是 0，意味着要等“下周的这一天”
-                        if (daysUntilNextStart === 0) daysUntilNextStart = 7;
+                    return {
+                        isFlashSaleActive: true,
+                        targetTimestamp: getUtcTimestamp(targetDateObj)
+                    };
+
+                } else {
+                    // === CAS 2 : RIEN EN COURS (UPCOMING) ===
+                    // Objectif : Le prochain début le plus proche
+
+                    for (let p of periods) {
+                        // Calculer combien de jours il faut attendre pour le startDay de cette période
+                        let daysUntil = (p.startDay - currentDay + 7) % 7;
+
+                        // Si c'est aujourd'hui mais qu'il est déjà passé 10h, c'est la semaine prochaine (+7)
+                        if (daysUntil === 0 && currentHour >= 10) {
+                            daysUntil = 7;
+                        }
+
+                        // On cherche le plus petit délai
+                        if (daysUntil < minDiffToNext) {
+                            minDiffToNext = daysUntil;
+                            nextPeriodStart = p;
+                        }
                     }
 
-                    targetDateObj.setDate(parisDate.getDate() + daysUntilNextStart);
-                    targetDateObj.setHours(10);
+                    targetDateObj.setDate(parisDate.getDate() + minDiffToNext);
+
+                    return {
+                        isFlashSaleActive: false,
+                        targetTimestamp: getUtcTimestamp(targetDateObj)
+                    };
                 }
-
-                const year = targetDateObj.getFullYear();
-                const month = targetDateObj.getMonth() + 1;
-                const d = targetDateObj.getDate();
-                const h = targetDateObj.getHours();
-
-                const targetTimestamp = zonedDateTimeToUTCTimestamp(year, month - 1, d, h, 0, 0, "Europe/Paris");
-
-                return {
-                    isFlashSaleActive,
-                    targetTimestamp
-                };
             }
 
-            // ================= 工具函数 =================
-            function zonedDateTimeToUTCTimestamp(year, month, day, hour, minute, second, timeZone) {
-                // 处理日期的溢出（比如月只有30天，计算出的day是32）
-                // 最好让 Date 对象自己处理，这里重新构造一个 Local Date 对象来确保 ISO 字符串合法性略繁琐
-                // 更简单的办法：利用 Date 的自动进位特性，但在生成 ISO 字符串前需要小心。
-                // -------------------------------------------------------------
-                // 修正：上面的 calculateTarget 已经用 setDate 自动处理了进位（例如32号变成下月1号）
-                // 所以传入这里的 year/month/day 是合法的。直接拼字符串即可。
-                
-                const isoLocal = `${year.toString().padStart(4, "0")}-${(month + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}T${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}`;
-                const localStr = new Date(isoLocal).toLocaleString("en-US", { timeZone });
-                return new Date(localStr).getTime();
+            // Helper pour récupérer le timestamp UTC correct depuis l'objet Date manipulé
+            function getUtcTimestamp(localDateObj) {
+                const year = localDateObj.getFullYear();
+                const month = localDateObj.getMonth() + 1;
+                const d = localDateObj.getDate();
+                const h = localDateObj.getHours();
+                // Reconstruit la chaîne ISO pour Paris afin d'obtenir le timestamp absolu
+                const isoLocal = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}T${String(h).padStart(2, '0')}:00:00`;
+                // Note: Si navigateur ancien, attention au support IANA timezones
+                const parisStr = new Date(isoLocal).toLocaleString("en-US", { timeZone: "Europe/Paris" });
+                return new Date(parisStr).getTime();
             }
 
-            // ================= 界面更新 =================
+            // ================= Mise à jour UI =================
             function updateUI() {
                 const state = calculateTarget();
 
-                // 1. 设置标题
+                // Titre
                 const titleEl = document.getElementById("title-text");
-                const titleWrapper = document.getElementById("dynamic-title");
+                document.getElementById("dynamic-title").style.display = "block";
+                titleEl.textContent = state.isFlashSaleActive ? textData.activeTitle : textData.upcomingTitle;
 
-                if (state.isFlashSaleActive) {
-                    titleEl.textContent = textData.activeTitle;
-                } else {
-                    titleEl.textContent = textData.upcomingTitle;
-                }
-                titleWrapper.style.display = "block";
-
-                // 2. 设置标签
+                // Labels
                 document.getElementById("label-days").textContent = textData.labels[0];
                 document.getElementById("label-hours").textContent = textData.labels[1];
                 document.getElementById("label-minutes").textContent = textData.labels[2];
                 document.getElementById("label-seconds").textContent = textData.labels[3];
 
-                // 3. 计算倒计时
-                let now;
-                if (debugDateParam) {
-                    now = new Date(debugDateParam).getTime();
-                } else {
-                    now = Date.now();
-                }
+                // Calcul Temps
+                let now = debugDateParam ? new Date(debugDateParam).getTime() : Date.now();
+                let distance = state.targetTimestamp - now;
 
-                const distance = state.targetTimestamp - now;
+                // Protection affichage négatif (si léger lag)
+                if (distance < 0) distance = 0;
 
-                if (distance < 0) {
-                    // 理论上 distance 不该小于0，因为我们总是指向“未来”的一个时间点。
-                    // 除非 calculateTarget 逻辑有漏洞导致指向了“刚才”。
-                    // 作为兜底显示 00
-                    document.getElementById("days").textContent = "00";
-                    document.getElementById("hours").textContent = "00";
-                    document.getElementById("minutes").textContent = "00";
-                    document.getElementById("seconds").textContent = "00";
-                } else {
-                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                    document.getElementById("days").textContent = String(days).padStart(2, "0");
-                    document.getElementById("hours").textContent = String(hours).padStart(2, "0");
-                    document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
-                    document.getElementById("seconds").textContent = String(seconds).padStart(2, "0");
+                document.getElementById("days").textContent = String(days).padStart(2, "0");
+                document.getElementById("hours").textContent = String(hours).padStart(2, "0");
+                document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
+                document.getElementById("seconds").textContent = String(seconds).padStart(2, "0");
 
-                    document.getElementById("countdown-wrapper").classList.remove("countdown-hidden");
-                }
+                document.getElementById("countdown-wrapper").classList.remove("countdown-hidden");
             }
 
             updateUI();
             setInterval(updateUI, 1000);
-
         })();
     </script>
 
