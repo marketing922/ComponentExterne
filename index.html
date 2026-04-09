@@ -10,186 +10,156 @@
         rel="stylesheet">
     <title>Ventes Flash Countdown</title>
     <style>
-        /* 全局重置，确保 iframe 边缘无缝隙 */
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            /* 这里的 padding-bottom 是为了防止内容紧贴底部，可根据 iframe 高度微调 */
-            padding-bottom: 20px;
-            width: 100%;
-            font-family: 'Poppins', sans-serif;
+        html, body {
+            margin: 0; padding: 0; background: #fff;
+            width: 100%; font-family: 'Poppins', sans-serif;
         }
 
-        /* --- 1. 标题区域：全宽背景 --- */
-        .text-title {
-            width: 100%;
-            /* 关键：撑满 iframe 宽度 */
-            padding: 1.3em 0;
-            background-color: #f5f9f7;
-            /* 淡绿色背景 */
-            margin-bottom: 25px;
-            /* 标题和倒计时的间距 */
-            text-align: center;
-            box-sizing: border-box;
-            /* 确保 padding 不会撑破宽度 */
-            font-weight: 700;
+        /* --- Countdown Banner --- */
+        .countdown-section { margin: 0; padding: 1rem; box-sizing: border-box; }
+
+        .countdown-banner {
+            background: #2E6B44; border-radius: 16px;
+            padding: 1.4rem 1.25rem; display: flex; flex-direction: column; gap: 1.25rem;
+            position: relative; overflow: hidden;
+        }
+        .countdown-banner::after {
+            content: ''; position: absolute; top: -50px; right: -50px;
+            width: 180px; height: 180px; border-radius: 50%;
+            background: rgba(255,255,255,0.05); pointer-events: none;
+        }
+        .countdown-banner.is-live { background: #aacb55; }
+        .countdown-banner.is-live .cb-status { background: #2E6B44; }
+
+        /* Status badge */
+        .cb-status {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.18); color: white;
+            font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+            padding: 4px 11px; border-radius: 999px; width: fit-content;
+        }
+        .cb-status-dot {
+            width: 6px; height: 6px; border-radius: 50%; background: white;
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.35; transform: scale(0.65); }
         }
 
-        .text-title>p {
-            font-size: 1.3em;
-            /* 特粗字体 */
-            margin: 0;
-            color: #000;
-            /* 纯黑文字 */
-            letter-spacing: 0.5px;
+        /* Title */
+        .cb-title {
+            font-size: 17px; font-weight: 500; color: white;
+            margin-top: 4px; line-height: 1.25;
+        }
+        .cb-title em {
+            font-style: normal; font-size: 12px; font-weight: 300;
+            opacity: 0.7; display: block; margin-top: 4px;
         }
 
-        /* --- 2. 倒计时容器 --- */
-        #countdown-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: center;
+        /* Timer */
+        .cb-timer { display: flex; align-items: flex-start; gap: 8px; }
+        .cb-unit { text-align: center; }
+        .cb-val {
+            display: block; font-size: 32px; font-weight: 600; line-height: 1;
+            color: white; font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+        }
+        .cb-lbl {
+            font-size: 9px; color: rgba(255,255,255,0.5);
+            text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px;
+        }
+        .cb-sep {
+            font-size: 28px; font-weight: 200; color: rgba(255,255,255,0.25);
+            line-height: 1; padding-top: 2px;
         }
 
-        .countdown-container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            flex-wrap: nowrap;
-            /* 强制不换行，防止手机上布局错乱 */
-        }
-
-        /* --- 单个倒计时盒子 --- */
-        .countdown-box {
-            text-align: center;
-            margin: 0 12px;
-            /* 默认间距 */
-            position: relative;
-            min-width: 60px;
-            /* 最小宽度，防止挤压 */
-        }
-
-        /* --- 分隔符 (连字符 -) --- */
-        .countdown-box:not(:last-child):after {
-            content: "-";
-            position: absolute;
-            right: -23px;
-            top: 38%;
-            transform: translateY(-60%);
-            color: #DDD;
-            font-size: calc(20px + 1vw);
-            font-weight: normal;
-        }
-
-        /* --- 数字样式 --- */
-        .countdown-value {
-            font-size: 48px;
-            /* 默认大号字体 */
-            font-weight: bold;
-            color: #33a853;
-            /* 核心绿色 */
-            line-height: 1;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        /* --- 标签样式 (Jours/Heures...) --- */
-        .countdown-label {
-            color: #33a853;
-            font-size: 14px;
-            font-weight: normal;
-        }
-
-        .countdown-hidden {
-            visibility: hidden;
-        }
-
-        /* =========================================
-           自适应逻辑 (Responsive)
-           当 iframe 宽度小于 600px (手机/窄屏) 时触发
-           ========================================= */
-        @media (max-width: 600px) {
-            .text-title {
-                padding: 12px 0;
-                margin-bottom: 15px;
+        /* --- Responsive: Tablet >= 640px --- */
+        @media (min-width: 640px) {
+            .countdown-banner {
+                flex-direction: row; align-items: center;
+                justify-content: space-between; padding: 1.75rem 2rem;
             }
+            .cb-val { font-size: 36px; }
+        }
 
-            .text-title>p {
-                font-size: 16px;
-                /* 标题稍微调小 */
-            }
-
-            .countdown-box {
-                margin: 0 5px;
-                /* 缩小左右间距 */
-                min-width: 45px;
-            }
-
-            .countdown-value {
-                font-size: 32px;
-                /* 数字变小，防止换行 */
-                margin-bottom: 4px;
-            }
-
-            .countdown-label {
-                font-size: 11px;
-                /* 标签变小 */
-            }
-
-            /* 调整分隔符位置和大小以适应新字体 */
-            .countdown-box:not(:last-child):after {
-                content: "-";
-                position: absolute;
-                right: -12px;
-                top: 38%;
-                transform: translateY(-60%);
-                color: #DDD;
-                font-size: calc(20px + 1vw);
-                font-weight: normal;
-            }
+        /* --- Responsive: Desktop >= 1024px --- */
+        @media (min-width: 1024px) {
+            .countdown-banner { padding: 2.5rem 3rem; gap: 2rem; }
+            .countdown-banner::after { width: 260px; height: 260px; top: -60px; right: -60px; }
+            .cb-title { font-size: 22px; }
+            .cb-title em { font-size: 13px; }
+            .cb-val { font-size: 42px; }
+            .cb-sep { font-size: 38px; }
+            .cb-timer { gap: 10px; }
         }
     </style>
 </head>
 
 <body>
 
-    <div id="dynamic-title" class="text-title" style="display:none;">
-        <p><span id="title-text">...</span></p>
-    </div>
-
-    <div id="countdown-wrapper" class="countdown-hidden">
-        <div class="countdown-container">
-            <div class="countdown-box">
-                <div id="days" class="countdown-value">00</div>
-                <div id="label-days" class="countdown-label">Jours</div>
+    <section class="countdown-section">
+        <div id="countdown-banner" class="countdown-banner">
+            <div class="cb-left">
+                <div class="cb-status">
+                    <span class="cb-status-dot"></span><span id="cb-status-text">Prochaine vente</span>
+                </div>
+                <div class="cb-title">
+                    <span id="cb-title-text">...</span>
+                    <em id="cb-subtitle-text"></em>
+                </div>
             </div>
-            <div class="countdown-box">
-                <div id="hours" class="countdown-value">00</div>
-                <div id="label-hours" class="countdown-label">Heures</div>
-            </div>
-            <div class="countdown-box">
-                <div id="minutes" class="countdown-value">00</div>
-                <div id="label-minutes" class="countdown-label">Minutes</div>
-            </div>
-            <div class="countdown-box">
-                <div id="seconds" class="countdown-value">00</div>
-                <div id="label-seconds" class="countdown-label">Secondes</div>
+            <div class="cb-timer">
+                <div class="cb-unit">
+                    <span class="cb-val" id="days">00</span>
+                    <div class="cb-lbl" id="label-days">Jours</div>
+                </div>
+                <div class="cb-sep">:</div>
+                <div class="cb-unit">
+                    <span class="cb-val" id="hours">00</span>
+                    <div class="cb-lbl" id="label-hours">Heures</div>
+                </div>
+                <div class="cb-sep">:</div>
+                <div class="cb-unit">
+                    <span class="cb-val" id="minutes">00</span>
+                    <div class="cb-lbl" id="label-minutes">Min</div>
+                </div>
+                <div class="cb-sep">:</div>
+                <div class="cb-unit">
+                    <span class="cb-val" id="seconds">00</span>
+                    <div class="cb-lbl" id="label-seconds">Sec</div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <script>
         (function () {
             // ================= Configuration =================
             const i18n = {
-                "fr": { activeTitle: "Fin des ventes flash", upcomingTitle: "Prochaines ventes flash", labels: ["Jours", "Heures", "Minutes", "Secondes"] },
-                "en": { activeTitle: "Flash sales end in", upcomingTitle: "Next flash sales in", labels: ["Days", "Hours", "Minutes", "Seconds"] },
-                "zh-CN": { activeTitle: "限时特卖结束倒计时", upcomingTitle: "距离下次特卖还有", labels: ["天", "时", "分", "秒"] }
+                "fr": {
+                    activeTitle: "La vente flash a commencée", statusActive: "Vente en cours", statusUpcoming: "Prochaine vente",
+                    labels: ["Jours", "Heures", "Min", "Sec"],
+                    days: ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"],
+                    months: ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."],
+                    subtitleLive: "Se termine le {endDay} {endDate} {endMonth} à 10h · Stocks ultra-limités",
+                    subtitleUpcoming: "Ouverture à 10h · se termine le {endDay} à 10h · Stocks ultra-limités"
+                },
+                "en": {
+                    activeTitle: "Flash sale has started", statusActive: "Sale live", statusUpcoming: "Next sale",
+                    labels: ["Days", "Hours", "Min", "Sec"],
+                    days: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+                    months: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+                    subtitleLive: "Ends on {endDay} {endDate} {endMonth} at 10am · Ultra-limited stock",
+                    subtitleUpcoming: "Opens at 10am · ends on {endDay} at 10am · Ultra-limited stock"
+                },
+                "zh-CN": {
+                    activeTitle: "限时特卖进行中", statusActive: "特卖进行中", statusUpcoming: "下次特卖",
+                    labels: ["天", "时", "分", "秒"],
+                    days: ["周日","周一","周二","周三","周四","周五","周六"],
+                    months: ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"],
+                    subtitleLive: "{endDay} {endDate} {endMonth} 10点结束 · 库存极其有限",
+                    subtitleUpcoming: "10点开始 · {endDay} 10点结束 · 库存极其有限"
+                }
             };
 
             const params = new URLSearchParams(window.location.search);
@@ -287,7 +257,9 @@
 
                     return {
                         isFlashSaleActive: true,
-                        targetTimestamp: getUtcTimestamp(targetDateObj)
+                        targetTimestamp: getUtcTimestamp(targetDateObj),
+                        activePeriod: activePeriod,
+                        parisDate: parisDate
                     };
 
                 } else {
@@ -314,7 +286,10 @@
 
                     return {
                         isFlashSaleActive: false,
-                        targetTimestamp: getUtcTimestamp(targetDateObj)
+                        targetTimestamp: getUtcTimestamp(targetDateObj),
+                        nextPeriod: nextPeriodStart,
+                        targetDateObj: new Date(targetDateObj),
+                        parisDate: parisDate
                     };
                 }
             }
@@ -335,11 +310,32 @@
             // ================= Mise à jour UI =================
             function updateUI() {
                 const state = calculateTarget();
+                const banner = document.getElementById("countdown-banner");
 
-                // Titre
-                const titleEl = document.getElementById("title-text");
-                document.getElementById("dynamic-title").style.display = "block";
-                titleEl.textContent = state.isFlashSaleActive ? textData.activeTitle : textData.upcomingTitle;
+                // Status badge + is-live class
+                document.getElementById("cb-status-text").textContent = state.isFlashSaleActive ? textData.statusActive : textData.statusUpcoming;
+                if (state.isFlashSaleActive) {
+                    banner.classList.add("is-live");
+                } else {
+                    banner.classList.remove("is-live");
+                }
+
+                // Titre + Sous-titre dynamiques
+                var targetDate = new Date(state.targetTimestamp);
+                if (state.isFlashSaleActive) {
+                    document.getElementById("cb-title-text").textContent = textData.activeTitle;
+                    document.getElementById("cb-subtitle-text").textContent = "";
+                } else {
+                    // Upcoming: title = "Mardi 14 avr.", subtitle = "Ouverture à 10h · se termine le mercredi à 10h..."
+                    var startDayName = textData.days[targetDate.getDay()];
+                    var startDateNum = targetDate.getDate();
+                    var startMonthName = textData.months[targetDate.getMonth()];
+                    document.getElementById("cb-title-text").textContent = startDayName + " " + startDateNum + " " + startMonthName;
+                    // Compute end day name from the period
+                    var endDayName = state.nextPeriod ? textData.days[state.nextPeriod.endDay].toLowerCase() : "";
+                    document.getElementById("cb-subtitle-text").textContent = textData.subtitleUpcoming
+                        .replace("{endDay}", endDayName);
+                }
 
                 // Labels
                 document.getElementById("label-days").textContent = textData.labels[0];
@@ -363,8 +359,6 @@
                 document.getElementById("hours").textContent = String(hours).padStart(2, "0");
                 document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
                 document.getElementById("seconds").textContent = String(seconds).padStart(2, "0");
-
-                document.getElementById("countdown-wrapper").classList.remove("countdown-hidden");
             }
 
             updateUI();
