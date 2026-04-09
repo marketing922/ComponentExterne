@@ -165,6 +165,8 @@
             const params = new URLSearchParams(window.location.search);
             const langParam = params.get("language");
             const debugDateParam = params.get("debug-date");
+            const bgParam = params.get("bg");
+            if (bgParam) document.body.style.background = "#" + bgParam;
             const currentLang = (langParam && i18n[langParam]) ? langParam : "fr";
             const textData = i18n[currentLang];
 
