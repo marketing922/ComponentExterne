@@ -20,9 +20,11 @@
 
         .countdown-banner {
             background: #2E6B44; border-radius: 16px;
-            padding: 1.4rem 1.25rem; display: flex; flex-direction: column; gap: 1.25rem;
+            padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 1.25rem;
+            align-items: center; text-align: center;
             position: relative; overflow: hidden;
         }
+        .cb-left { display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .countdown-banner::after {
             content: ''; position: absolute; top: -50px; right: -50px;
             width: 180px; height: 180px; border-radius: 50%;
@@ -73,24 +75,31 @@
             line-height: 1; padding-top: 2px;
         }
 
-        /* --- Responsive: Tablet >= 640px --- */
+        /* --- Responsive: Tablet >= 640px --- 
         @media (min-width: 640px) {
             .countdown-banner {
-                flex-direction: row; align-items: center;
+                flex-direction: row; align-items: center; text-align: left;
                 justify-content: space-between; padding: 1.75rem 2rem;
             }
+            .cb-left { align-items: flex-start; }
             .cb-val { font-size: 36px; }
-        }
+        }*/
 
         /* --- Responsive: Desktop >= 1024px --- */
-        @media (min-width: 1024px) {
-            .countdown-banner { padding: 2.5rem 3rem; gap: 2rem; }
+        @media (min-width: 768px) {
+            .countdown-banner {
+                flex-direction: row; align-items: center; justify-content: space-between;
+                text-align: left;
+                padding: 1.5rem 3rem; gap: 2rem;
+            }
+            .cb-left { align-items: flex-start; gap: 12px; flex: 0 0 auto; max-width: 32%; }
             .countdown-banner::after { width: 260px; height: 260px; top: -60px; right: -60px; }
             .cb-title { font-size: 22px; }
             .cb-title em { font-size: 13px; }
-            .cb-val { font-size: 42px; }
-            .cb-sep { font-size: 38px; }
-            .cb-timer { gap: 10px; }
+            .cb-timer { gap: clamp(6px, 0.8vw, 14px); align-items: center; flex: 1 1 auto; justify-content: flex-end; }
+            .cb-val { font-size: clamp(72px, 9vw, 150px); line-height: 0.95; }
+            .cb-sep { font-size: clamp(54px, 7vw, 110px); padding-top: 0; }
+            .cb-lbl { font-size: clamp(10px, 0.8vw, 14px); margin-top: 10px; }
         }
     </style>
 </head>
